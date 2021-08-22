@@ -1,0 +1,45 @@
+{
+  "name": "@alifd/scaffold-lite",
+  "version": "0.1.0",
+  "description": "轻量级模板，使用 TypeScript，仅包含基础的 Layout。",
+  "dependencies": {
+    "@alifd/next": "^1.19.4",
+    "@alifd/theme-design-pro": "^0.x",
+    "@luchao/react-components": "^1.0.2",
+    "moment": "^2.24.0",
+    "react": "^16.4.1",
+    "react-dom": "^16.4.1"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.13.0",
+    "@babel/core": "^7.13.8",
+    "@babel/parser": "^7.14.4",
+    "@babel/preset-env": "^7.13.9",
+    "@babel/preset-react": "^7.12.13",
+    "@babel/preset-typescript": "^7.15.0",
+    "@iceworks/spec": "^1.0.0",
+    "babel-plugin-import": "^1.13.3",
+    "build-plugin-fusion": "^0.1.0",
+    "build-plugin-moment-locales": "^0.1.0",
+    "eslint": "^6.8.0",
+    "ice.js": "^1.0.0",
+    "node-sass": "^6.0.1",
+    "sass-loader": "^12.1.0",
+    "stylelint": "^13.2.0"
+  },
+  "scripts": {
+    "start": "icejs start",
+    "build": "icejs build",
+    "lint": "npm run eslint && npm run stylelint",
+    "eslint": "eslint --cache --ext .js,.jsx,.ts,.tsx ./",
+    "eslint:fix": "npm run eslint -- --fix",
+    "stylelint": "stylelint \"**/*.{css,scss,less}\"",
+    "babel": "npx babel src/components --out-dir @luchao:react-components --extensions '.tsx'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alibaba-fusion/materials/tree/master/scaffolds/scaffold-lite"
+  },
+  "private": true,
+  "originTemplate": "@alifd/scaffold-lite"
+}

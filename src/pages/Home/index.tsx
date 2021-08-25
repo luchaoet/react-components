@@ -1,6 +1,7 @@
-import React from 'react';
-import Scroll from '@/components/Scroll';
-import {IfElse,MapDom} from '@/components'
+import React, { useState } from 'react';
+// import Scroll from '@/components/Scroll';
+import {IfElse,MapDom, DraggleLayout, Scroll, Switch } from '@/components'
+import { Button } from '@alifd/next'
 
 import './index.scss'
 
@@ -8,11 +9,12 @@ const If = IfElse.If
 const Else = IfElse.Else
 
 const Home = () => {
+  const [expression, setExpression] = useState('A')
   return (
     <div className="home-wrap">
-      <IfElse condition={true}>
+      <IfElse condition={undefined}>
         <If>111</If>
-        <Else>111</Else>
+        <Else>2222</Else>
       </IfElse>
       <IfElse condition={true}>
         <If>111</If>
@@ -32,9 +34,34 @@ const Home = () => {
             }}>{d}</ul>}
             render={(item, index) => <li style={{width: 100}} key={index}>{item}</li>}
           ></MapDom>
-          
         </Scroll>
       </div>
+      <div style={{ height: 200, border: '1px solid #333'}}>
+        <DraggleLayout min='10%' max='80%' defaultValue="50%" direction='ver' style={{width: '100%', height: '100%'}}>
+          <DraggleLayout.A style={{backgroundColor: '#4caf50'}}>A</DraggleLayout.A>
+          <DraggleLayout.B style={{backgroundColor: '#009688'}}>B</DraggleLayout.B>
+        </DraggleLayout>
+      </div>
+      <div style={{ height: 200, border: '1px solid #333'}}>
+        <DraggleLayout min='10%' max='80%' defaultValue="50%" direction='hoz' style={{width: '100%', height: '100%'}}>
+          <DraggleLayout.A style={{backgroundColor: '#4caf50'}}>A</DraggleLayout.A>
+          <DraggleLayout.B style={{backgroundColor: '#009688'}}>B</DraggleLayout.B>
+        </DraggleLayout>
+      </div>
+
+      <div>
+        <Button onClick={() => setExpression('A')}>A</Button>
+        <Button onClick={() => setExpression('B')}>B</Button>
+        <Button onClick={() => setExpression('C')}>C</Button>
+      </div>
+      <Switch expression={expression}>
+        <div case='A'>A</div>
+        <div case='B'>B</div>
+        <div case='C'>C</div>
+      </Switch>
+
+
+      <div style={{height: '50vh'}}></div>
     </div>
   );
 };

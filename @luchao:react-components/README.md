@@ -1,6 +1,6 @@
 # react组件
 
-## IfElse
+## IfElse ifelse条件显示
 
 ```react
 import { IfElse } from "@luchao/react-components"
@@ -22,20 +22,47 @@ export default Test() {
 }
 ```
 
-## MapDom
+## MapDom 循环，map
 
 ```react
 import { MapDom } from "@luchao/react-components"
 
-export default Test() {
-    return (
-        <div>
-            <MapDom
-                parentDom={d => <ul>{d}</ul>}
-                dataSource={[1, 2, 3, 4, 5]}
-                render={(item, index) => <li key={index}>{item}</li>}
-            />
-        </div>
-    )
-}
+<MapDom
+    parentDom={d => <ul>{d}</ul>}
+    dataSource={[1, 2, 3, 4, 5]}
+    render={(item, index) => <li key={index}>{item}</li>}
+/>
+```
+
+## Scroll 自定义滚动条
+
+```react
+import { Scroll } from "@luchao/react-components"
+
+<Scroll>
+    {/* HTML */}
+</Scroll>
+```
+
+## Switch switch条件显示
+
+```react
+import { Switch } from "@luchao/react-components"
+
+<Switch expression={expression}>
+    <div case='A'>A</div>
+    <div case='B'>B</div>
+    <div case='C'>C</div>
+</Switch>
+```
+
+## DraggleLayout 拖拽改变区域内部两部分的分配比例
+
+```react
+import { DraggleLayout } from "@luchao/react-components"
+
+<DraggleLayout min='10%' max='80%' defaultValue="50%" direction='hoz' style={{width: '100%', height: 200}}>
+    <DraggleLayout.A style={{backgroundColor: '#4caf50'}}>A</DraggleLayout.A>
+    <DraggleLayout.B style={{backgroundColor: '#009688'}}>B</DraggleLayout.B>
+</DraggleLayout>
 ```

@@ -1,14 +1,10 @@
-// import React from 'react';
-const IfElse = ({ condition = true, children }) => {
+const IfElse = ({ condition, children }) => {
   let ifDom = null;
   let elseDom = null;
-  let _children = children || [];
-
   // 单个子节点可能是react element或字符串，转为数组统一处理
-  if (Object.prototype.toString.call(children) !== '[object Array]') {
-    _children = [children];
-  } 
-  for (const child of _children) {
+  children = Object.prototype.toString.call(children) === '[object Array]' ? children : [children];
+
+  for (const child of children) {
     const childType = child.type;
     if (Object.prototype.toString.call(childType) === '[object Function]' && childType.displayName === 'Else') {
       elseDom = child;
@@ -16,7 +12,7 @@ const IfElse = ({ condition = true, children }) => {
       ifDom = child;
     }
   }
-  return condition ? ifDom : elseDom;
+  return !!condition ? ifDom : elseDom;
 };
 
 function If({ children }) {

@@ -1,27 +1,26 @@
 import React, { Component } from 'react';
 import './index.scss';
 
-interface State {
-  whs: {
-    ww: number;
-    wh: number;
-    cw: number;
-    ch: number;
-    scrollXTop: number;
-    scrollYTop: number;
-  };
-  isScrollMouseDown: Boolean;
-  wrap: any;
-  container: any;
-}
+// interface State {
+//   whs: {
+//     ww: number;
+//     wh: number;
+//     cw: number;
+//     ch: number;
+//     scrollXTop: number;
+//     scrollYTop: number;
+//   };
+//   isScrollMouseDown: Boolean;
+//   wrap: any;
+//   container: any;
+// }
 
 const isFirefox = typeof navigator !== 'undefined' && navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
 
 export default class Scroll extends Component {
   wrap = React.createRef();
   container = React.createRef();
-  state: State;
-  constructor(props: Object) {
+  constructor(props) {
     super(props);
     this.handleWheel = this.handleWheel.bind(this);
     this.init = this.init.bind(this);
@@ -29,8 +28,8 @@ export default class Scroll extends Component {
       wrap: null,
       container: null,
       whs: { ww: 0, wh: 0, cw: 0, ch: 0, scrollXTop: 0, scrollYTop: 0 },
-      isScrollMouseDown: false
-    }
+      isScrollMouseDown: false,
+    };
   }
   componentDidMount() {
     this.init();
@@ -53,12 +52,12 @@ export default class Scroll extends Component {
     this.setState({
       whs: {
         ...this.state.whs,
-        ww: toNumber(ww), 
-        wh: toNumber(wh), 
-        cw: toNumber(cw), 
-        ch: toNumber(ch)
-      }
-    })
+        ww: toNumber(ww),
+        wh: toNumber(wh),
+        cw: toNumber(cw),
+        ch: toNumber(ch),
+      },
+    });
   }
   handleWheel(e) {
     e?.preventDefault();
@@ -87,7 +86,7 @@ export default class Scroll extends Component {
         ...this.state.whs,
         scrollXTop: _scrollXTop,
         scrollYTop: _scrollYTop,
-      }
+      },
     });
   }
   onScrollMouseDown(e, dir) {
@@ -98,16 +97,16 @@ export default class Scroll extends Component {
     const { cw, ww, ch, wh } = this.state.whs;
     const _this = this;
     window.onmousemove = (ev) => {
-      console.log(1)
+      console.log(1);
       const left = ev.clientX - startPosX;
       const top = ev.clientY - startPosY;
       startPosX = ev.clientX;
       startPosY = ev.clientY;
       _this.handleWheel({
-        deltaX: dir === 'x' ? (left * cw) / ww : 0, 
+        deltaX: dir === 'x' ? (left * cw) / ww : 0,
         deltaY: dir === 'y' ? (top * ch) / wh : 0,
-        preventDefault: () => {}
-      })
+        preventDefault: () => {},
+      });
     };
     window.onmouseup = () => {
       window.onmousemove = null;
@@ -121,44 +120,40 @@ export default class Scroll extends Component {
     const isOverflowY = whs.ch > whs.wh;
     // 滚动滑块的大小
     const barXStyle = {
-      width: Math.pow(whs.ww - 4, 2) / (whs.cw),
-      transform: `translateX(${whs.scrollXTop * whs.ww / whs.cw}px)`,
+      width: Math.pow(whs.ww - 4, 2) / whs.cw,
+      transform: `translateX(${(whs.scrollXTop * whs.ww) / whs.cw}px)`,
     };
     const barYStyle = {
-      height: Math.pow(whs.wh - 4, 2) / (whs.ch),
-      transform: `translateY(${whs.scrollYTop * whs.wh / whs.ch}px)`,
+      height: Math.pow(whs.wh - 4, 2) / whs.ch,
+      transform: `translateY(${(whs.scrollYTop * whs.wh) / whs.ch}px)`,
     };
     const containerStyle = {
       transform: `translate(-${whs.scrollXTop}px, -${whs.scrollYTop}px)`,
     };
     return (
       <div className={`scroll-wrap${isScrollMouseDown ? ' is-scroll-mouseDown' : ''}`} id="scroll-wrap">
-        <div className="scroll-container" id="scroll-container" style={containerStyle}>{this.props.children}</div>
-        {
-          isOverflowX &&
+        <div className="scroll-container" id="scroll-container" style={containerStyle}>
+          {this.props.children}
+        </div>
+        {isOverflowX && (
           <div className="scroll-bar-wrap scroll-bar-x-wrap">
-            <span 
-              style={barXStyle} 
-              className="scroll-bar"
-              onMouseDown={e => this.onScrollMouseDown(e, 'x')}
-            >bar</span>
+            <span style={barXStyle} className="scroll-bar" onMouseDown={(e) => this.onScrollMouseDown(e, 'x')}>
+              bar
+            </span>
           </div>
-        }
-        {
-          isOverflowY &&
+        )}
+        {isOverflowY && (
           <div className="scroll-bar-wrap scroll-bar-y-wrap">
-            <span 
-              style={barYStyle} 
-              className="scroll-bar"
-              onMouseDown={e => this.onScrollMouseDown(e, 'y')}
-            >bar</span>
+            <span style={barYStyle} className="scroll-bar" onMouseDown={(e) => this.onScrollMouseDown(e, 'y')}>
+              bar
+            </span>
           </div>
-        }
+        )}
       </div>
-    )
+    );
   }
 }
 
-function toNumber(str: string | number): number {
-  return typeof str === 'string' ? (parseInt(str, 0) || 0) : str;
+function toNumber(str) {
+  return typeof str === 'string' ? parseInt(str, 0) || 0 : str;
 }

@@ -11,22 +11,15 @@ function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o =
 
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 
-// import React from 'react';
 var IfElse = function IfElse(_ref) {
-  var _ref$condition = _ref.condition,
-      condition = _ref$condition === void 0 ? true : _ref$condition,
+  var condition = _ref.condition,
       children = _ref.children;
   var ifDom = null;
-  var elseDom = null;
+  var elseDom = null; // 单个子节点可能是react element或字符串，转为数组统一处理
 
-  var _children = children || []; // 单个子节点可能是react element或字符串，转为数组统一处理
+  children = Object.prototype.toString.call(children) === '[object Array]' ? children : [children];
 
-
-  if (Object.prototype.toString.call(children) !== '[object Array]') {
-    _children = [children];
-  }
-
-  var _iterator = _createForOfIteratorHelper(_children),
+  var _iterator = _createForOfIteratorHelper(children),
       _step;
 
   try {
@@ -46,7 +39,7 @@ var IfElse = function IfElse(_ref) {
     _iterator.f();
   }
 
-  return condition ? ifDom : elseDom;
+  return !!condition ? ifDom : elseDom;
 };
 
 function If(_ref2) {

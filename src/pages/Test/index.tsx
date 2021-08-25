@@ -7,15 +7,15 @@ const Else = IfElse.Else
 const Test = () => {
   return (
     <div>
-      <IfElse condition={true}>
+      <IfElse condition={'11'}>
         <If>111</If>
-        <Else>111</Else>
+        <Else>222</Else>
       </IfElse>
       <IfElse condition={true}>
         <If>111</If>
       </IfElse>
       <MapDom 
-        dataSource={[1,2,3,4,5,6,7,8]}
+        dataSource={[1,2,3,4,5,6,7,8, 9]}
         parentDom={d => <ul>{d}</ul>}
         render={(item, index) => <li key={index}>{item}</li>}
       ></MapDom>

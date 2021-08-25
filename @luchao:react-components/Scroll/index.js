@@ -41,6 +41,19 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
+// interface State {
+//   whs: {
+//     ww: number;
+//     wh: number;
+//     cw: number;
+//     ch: number;
+//     scrollXTop: number;
+//     scrollYTop: number;
+//   };
+//   isScrollMouseDown: Boolean;
+//   wrap: any;
+//   container: any;
+// }
 var isFirefox = typeof navigator !== 'undefined' && navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
 
 var Scroll = /*#__PURE__*/function (_Component) {

@@ -38,7 +38,7 @@ export default class Scroll extends Component {
     wrapDom?.addEventListener(isFirefox ? 'DOMMouseScroll' : 'mousewheel', this.handleWheel);
   }
   componentWillUnmount() {
-    this.setState = () => {};
+    this.setState = (state, callback) => {};
     window.removeEventListener('resize', this.init);
     const wrapDom = document.getElementById('scroll-wrap');
     wrapDom?.removeEventListener(isFirefox ? 'DOMMouseScroll' : 'mousewheel', this.handleWheel);
@@ -97,7 +97,6 @@ export default class Scroll extends Component {
     const { cw, ww, ch, wh } = this.state.whs;
     const _this = this;
     window.onmousemove = (ev) => {
-      console.log(1);
       const left = ev.clientX - startPosX;
       const top = ev.clientY - startPosY;
       startPosX = ev.clientX;

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 // import Scroll from '@/components/Scroll';
-import {IfElse,MapDom, DraggleLayout, Scroll, Switch } from '@/components'
+import {IfElse,MapDom, DraggleLayout, Switch, Excel } from '@/components'
 import { Button } from '@alifd/next'
 
 import './index.scss'
@@ -12,9 +12,9 @@ const Home = () => {
   const [expression, setExpression] = useState('A')
   return (
     <div className="home-wrap">
-      <IfElse condition={undefined}>
+      <IfElse condition={true}>
         <If>111</If>
-        <Else>2222</Else>
+        <Else>222</Else>
       </IfElse>
       <IfElse condition={true}>
         <If>111</If>
@@ -24,25 +24,13 @@ const Home = () => {
         parentDom={d => <ul>{d}</ul>}
         render={(item, index) => <li key={index}>{item}</li>}
       ></MapDom>
-
-      <div className="container">
-        <Scroll>
-          <MapDom 
-            dataSource={[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]}
-            parentDom={d => <ul style={{
-              display: 'flex'
-            }}>{d}</ul>}
-            render={(item, index) => <li style={{width: 100}} key={index}>{item}</li>}
-          ></MapDom>
-        </Scroll>
-      </div>
       <div style={{ height: 200, border: '1px solid #333'}}>
         <DraggleLayout min='10%' max='80%' defaultValue="50%" direction='ver' style={{width: '100%', height: '100%'}}>
           <DraggleLayout.A style={{backgroundColor: '#4caf50'}}>A</DraggleLayout.A>
           <DraggleLayout.B style={{backgroundColor: '#009688'}}>B</DraggleLayout.B>
         </DraggleLayout>
       </div>
-      <div style={{ height: 200, border: '1px solid #333'}}>
+      <div style={{ height: 200, border: '1px solid #333'}} className='g-w-100per'>
         <DraggleLayout min='10%' max='80%' defaultValue="50%" direction='hoz' style={{width: '100%', height: '100%'}}>
           <DraggleLayout.A style={{backgroundColor: '#4caf50'}}>A</DraggleLayout.A>
           <DraggleLayout.B style={{backgroundColor: '#009688'}}>B</DraggleLayout.B>
@@ -60,8 +48,12 @@ const Home = () => {
         <div case='C'>C</div>
       </Switch>
 
+      <div  style={expression === 'A' ? {width: '100%', height: 400} : {width: '50%',height: 300}}>
+        <Excel />
+      </div>
 
-      <div style={{height: '50vh'}}></div>
+      <div style={{height: 300}}></div>
+
     </div>
   );
 };

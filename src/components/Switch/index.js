@@ -5,7 +5,7 @@ function Switch({ expression, children }) {
   const child = children.find((i) => i?.props?.case === expression);
   if (child) {
     const { type, props } = child;
-    const { case: _case, children, ...others } = props;
+    const { case: _, children, ...others } = props;
     return React.createElement(type, others, children);
   } else {
     return null;

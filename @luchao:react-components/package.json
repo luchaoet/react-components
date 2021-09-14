@@ -1,6 +1,6 @@
 {
   "name": "@luchao/react-components",
-  "version": "1.0.8",
+  "version": "1.0.11",
   "description": "React组件",
   "main": "index.js",
   "scripts": {
@@ -14,6 +14,7 @@
   "license": "ISC",
   "directories": {},
   "keywords": [
-    "react", "components"
+    "react",
+    "components"
   ]
 }

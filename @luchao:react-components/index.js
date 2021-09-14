@@ -3,6 +3,12 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+Object.defineProperty(exports, "Excel", {
+  enumerable: true,
+  get: function get() {
+    return _Excel["default"];
+  }
+});
 Object.defineProperty(exports, "IfElse", {
   enumerable: true,
   get: function get() {
@@ -33,6 +39,14 @@ Object.defineProperty(exports, "DraggleLayout", {
     return _DraggleLayout["default"];
   }
 });
+Object.defineProperty(exports, "keyboardShortcut", {
+  enumerable: true,
+  get: function get() {
+    return _keyboardShortcut["default"];
+  }
+});
+
+var _Excel = _interopRequireDefault(require("./Excel"));
 
 var _IfElse = _interopRequireDefault(require("./IfElse"));
 
@@ -43,5 +57,7 @@ var _Scroll = _interopRequireDefault(require("./Scroll"));
 var _Switch = _interopRequireDefault(require("./Switch"));
 
 var _DraggleLayout = _interopRequireDefault(require("./DraggleLayout"));
+
+var _keyboardShortcut = _interopRequireDefault(require("./keyboardShortcut"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }

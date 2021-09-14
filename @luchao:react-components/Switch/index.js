@@ -29,7 +29,7 @@ function Switch(_ref) {
     var type = child.type,
         props = child.props;
 
-    var _case = props["case"],
+    var _ = props["case"],
         _children = props.children,
         others = _objectWithoutProperties(props, _excluded);
 

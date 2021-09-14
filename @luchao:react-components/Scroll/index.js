@@ -101,7 +101,7 @@ var Scroll = /*#__PURE__*/function (_Component) {
   }, {
     key: "componentWillUnmount",
     value: function componentWillUnmount() {
-      this.setState = function () {};
+      this.setState = function (state, callback) {};
 
       window.removeEventListener('resize', this.init);
       var wrapDom = document.getElementById('scroll-wrap');
@@ -192,7 +192,6 @@ var Scroll = /*#__PURE__*/function (_Component) {
       var _this = this;
 
       window.onmousemove = function (ev) {
-        console.log(1);
         var left = ev.clientX - startPosX;
         var top = ev.clientY - startPosY;
         startPosX = ev.clientX;

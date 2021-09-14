@@ -30,6 +30,19 @@ const words = [
   'Y',
   'Z',
 ];
+// for (let i = 0; i < 100; i++) {
+//   console.log(i, returnAZ(i))
+  
+// }
+
+// function returnAZ(num) {
+//   const a = num%26
+//   const b = Math.floor(num/26)
+//   console.log(a)
+//   return b > 0 ? returnAZ(b) : '' + words[a]
+// }
+
+
 export default class Scroll extends Component {
   constructor(props) {
     super(props);
@@ -88,7 +101,7 @@ export default class Scroll extends Component {
     const canvas2 = createElement(width, height);
 
     let scrollLeft = this.state.scrollLeft;
-    console.log(scrollLeft);
+    // console.log(scrollLeft);
     let y = 25;
     let startRowIndex = 0;
     // let endRowIndex = 0;
@@ -98,7 +111,7 @@ export default class Scroll extends Component {
     }
 
     const x = y - (widths[startRowIndex] || 80) - scrollLeft;
-    console.log(x);
+    // console.log(x);
 
     dom.appendChild(canvas);
     dom.appendChild(canvas2);

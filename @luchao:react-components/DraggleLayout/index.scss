@@ -4,13 +4,13 @@
 .draggle-layout-a {
   position: relative;
 }
-.draggle-layout-b {
-  position: relative;
-  z-index: 5;
-}
+// .draggle-layout-b {
+//   position: relative;
+//   z-index: 4;
+// }
 .draggle-layout-border {
   position: absolute;
-  z-index: 2;
+  z-index: 5;
   box-sizing: border-box;
   background-clip: content-box;
   &:hover {
@@ -22,7 +22,6 @@
   bottom: -4px;
   width: 100%;
   height: 8px;
-  z-index: 10;
   cursor: ns-resize;
   border-top: 3px solid transparent;
   border-bottom: 3px solid transparent;
@@ -32,7 +31,6 @@
   right: -4px;
   width: 8px;
   height: 100%;
-  z-index: 10;
   cursor: ew-resize;
   border-left: 3px solid transparent;
   border-right: 3px solid transparent;

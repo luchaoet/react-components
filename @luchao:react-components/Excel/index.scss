@@ -1,0 +1,14 @@
+$pink: #237245;
+$fff: #fff;
+.excel-wrap {
+  width: 100%;
+  height: 100%;
+  background-color: $fff;
+  border: 1px solid #bdbbbc;
+  overflow: hidden;
+  position: relative;
+  canvas {
+    position: absolute;
+    z-index: 10;
+  }
+}

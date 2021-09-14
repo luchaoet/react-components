@@ -2,7 +2,7 @@ import React from 'react'
 import keyboardShortcut from '../../components/keyboardShortcut'
 import Home from '../Home'
 
-@keyboardShortcut({oncontextmenu: false})
+@keyboardShortcut()
 export default class Test2 extends React.Component {
 	constructor(props) {
 		super(props);
@@ -13,6 +13,9 @@ export default class Test2 extends React.Component {
 		return {
 			a: () => {
 				console.log('a')
+			},
+			copy: () => {
+				console.log('copy')
 			}
 		}
 	}

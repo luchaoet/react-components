@@ -49,83 +49,210 @@ function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Re
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 /**
- * 
+ *
  * desc 装饰器参数
  * WrappedComponent ReactComponent
  */
 var keyboardShortcut = function keyboardShortcut(desc) {
   return function (WrappedComponent) {
     return /*#__PURE__*/function (_React$Component) {
-      _inherits(_class, _React$Component);
+      _inherits(_class2, _React$Component);
 
-      var _super = _createSuper(_class);
+      var _super = _createSuper(_class2);
 
-      function _class(props) {
+      function _class2(props) {
         var _this;
 
-        _classCallCheck(this, _class);
+        _classCallCheck(this, _class2);
 
         _this = _super.call(this, props);
-        _this.onkeydown = _this.onkeydown.bind(_assertThisInitialized(_this));
-        _this.onmousemove = _this.onmousemove.bind(_assertThisInitialized(_this));
-        _this.state = {
-          target: null // 当前鼠标聚焦的元素 点击即为聚焦
 
-        };
+        _defineProperty(_assertThisInitialized(_this), "contextmenuFuns", ['contextmenu', 'contextmenuOutside', 'onceContextmenuOutside']);
+
+        _defineProperty(_assertThisInitialized(_this), "eventTarget", null);
+
+        _defineProperty(_assertThisInitialized(_this), "findFunction", function (name) {
+          var _assertThisInitialize, _assertThisInitialize2;
+
+          if ((_assertThisInitialize = _assertThisInitialized(_this)) !== null && _assertThisInitialize !== void 0 && (_assertThisInitialize2 = _assertThisInitialize.__wrappedInstance) !== null && _assertThisInitialize2 !== void 0 && _assertThisInitialize2.onkeydown) {
+            var funs = _this.__wrappedInstance.onkeydown() || {};
+
+            var empty = function empty() {};
+
+            return name ? funs[name] || empty : funs;
+          } else {
+            return {};
+          }
+        });
+
+        _defineProperty(_assertThisInitialized(_this), "mouseover", function (e) {
+          _this.eventTarget = e === null || e === void 0 ? void 0 : e.target;
+        });
+
+        _this.cut = _this.cut.bind(_assertThisInitialized(_this));
+        _this.copy = _this.copy.bind(_assertThisInitialized(_this));
+        _this.paste = _this.paste.bind(_assertThisInitialized(_this));
+        _this.onclick = _this.onclick.bind(_assertThisInitialized(_this));
+        _this.onkeydown = _this.onkeydown.bind(_assertThisInitialized(_this));
+        _this.contextmenu = _this.contextmenu.bind(_assertThisInitialized(_this));
+        _this.copypastecut = _this.copypastecut.bind(_assertThisInitialized(_this));
+        _this.onceClickOutsideSign = true;
+        _this.onceContextmenuOutsideSign = true;
+        _this.state = {};
         return _this;
       }
 
-      _createClass(_class, [{
+      _createClass(_class2, [{
         key: "params",
         get: function get() {
-          return Object.prototype.toString.call(desc) === "[object Object]" ? desc : {};
+          return Object.prototype.toString.call(desc) === '[object Object]' ? desc : {};
         }
       }, {
         key: "componentDidMount",
         value: function componentDidMount() {
-          var oncontextmenu = this.params.oncontextmenu; // 禁用鼠标右键
+          var _this2 = this;
 
-          if (!oncontextmenu) {
-            window.oncontextmenu = function () {
-              return false;
-            };
-          } // 键盘事件监听
-
-
-          document.addEventListener('keydown', this.onkeydown, true);
-          document.addEventListener('click', this.onmousemove, true);
-        }
-      }, {
-        key: "componentWillUnmount",
-        value: function componentWillUnmount() {
-          // 移除事件监听
-          document.removeEventListener('keydown', this.onkeydown, true);
-          document.removeEventListener('click', this.onmousemove, true);
-        }
-      }, {
-        key: "onmousemove",
-        value: function onmousemove(e) {
-          this.setState({
-            target: e === null || e === void 0 ? void 0 : e.target
+          var funs = this.findFunction();
+          var keys = Object.keys(funs);
+          var hasCopy = keys.includes('copy');
+          if (hasCopy) document.addEventListener('copy', this.copypastecut, true);
+          var hasPaste = keys.includes('paste');
+          if (hasPaste) document.addEventListener('paste', this.copypastecut, true);
+          var hasCut = keys.includes('cut');
+          if (hasCut) document.addEventListener('cut', this.copypastecut, true);
+          var hasContextmenu = keys.some(function (item) {
+            return _this2.contextmenuFuns.indexOf(item) >= 0;
           });
+          if (hasContextmenu) document.addEventListener('contextmenu', this.contextmenu, false);
+          document.addEventListener('keydown', this.onkeydown, true);
+          document.addEventListener('click', this.onclick, false);
+          document.addEventListener('mouseover', this.mouseover, false);
+        }
+      }, {
+        key: "componentWillMount",
+        value: function componentWillMount() {
+          var _this3 = this;
+
+          var funs = this.findFunction();
+          var keys = Object.keys(funs);
+          var hasCopy = keys.includes('copy');
+          if (hasCopy) document.removeEventListener('copy', this.copypastecut, true);
+          var hasPaste = keys.includes('paste');
+          if (hasPaste) document.removeEventListener('paste', this.copypastecut, true);
+          var hasCut = keys.includes('cut');
+          if (hasCut) document.removeEventListener('cut', this.copypastecut, true);
+          var hasContextmenu = keys.some(function (item) {
+            return _this3.contextmenuFuns.indexOf(item) >= 0;
+          });
+          if (hasContextmenu) document.removeEventListener('contextmenu', this.contextmenu, false);
+          document.removeEventListener('click', this.onclick, false);
+          document.removeEventListener('keydown', this.onkeydown, true);
+          document.removeEventListener('mouseover', this.mouseover, false);
+        }
+      }, {
+        key: "contextmenu",
+        value: function contextmenu(e) {
+          var target = e === null || e === void 0 ? void 0 : e.target;
+
+          var wrapDom = _reactDom["default"].findDOMNode(this.__wrappedInstance);
+
+          var _this$findFunction = this.findFunction(),
+              contextmenu = _this$findFunction.contextmenu,
+              contextmenuOutside = _this$findFunction.contextmenuOutside,
+              onceContextmenuOutside = _this$findFunction.onceContextmenuOutside;
+
+          if (wrapDom.contains(target)) {
+            // 鼠标右键
+            if (contextmenu) contextmenu(e);
+            if (onceContextmenuOutside) this.onceContextmenuOutsideSign = true;
+          } else {
+            if (contextmenuOutside) contextmenuOutside(e);
+
+            if (onceContextmenuOutside && this.onceContextmenuOutsideSign) {
+              this.onceContextmenuOutsideSign = false;
+              onceContextmenuOutside(e);
+            }
+          }
+        }
+      }, {
+        key: "onclick",
+        value: function onclick(e) {
+          // 处理clickOutside事件
+          // 装饰器包裹的组件dom
+          var wrapDom = _reactDom["default"].findDOMNode(this.__wrappedInstance);
+
+          var _this$findFunction2 = this.findFunction(),
+              click = _this$findFunction2.click,
+              clickOutside = _this$findFunction2.clickOutside,
+              onceClickOutside = _this$findFunction2.onceClickOutside;
+
+          if (wrapDom.contains(e === null || e === void 0 ? void 0 : e.target)) {
+            if (click) click(e);
+            if (onceClickOutside) this.onceClickOutsideSign = true;
+          } else {
+            if (clickOutside) clickOutside(e);
+
+            if (onceClickOutside && this.onceClickOutsideSign) {
+              this.onceClickOutsideSign = false;
+              onceClickOutside(e);
+            }
+          }
+        }
+      }, {
+        key: "copypastecut",
+        value: function copypastecut(e) {
+          var _ref = e || {},
+              type = _ref.type;
+
+          var wrapDom = _reactDom["default"].findDOMNode(this.__wrappedInstance);
+
+          if (!wrapDom.contains(this.eventTarget)) return;
+          this[type](e);
+        }
+      }, {
+        key: "copy",
+        value: function copy(e) {
+          // 存在选中内容，默认复制内容
+          var str = window.getSelection().toString();
+          if (str) return;
+          var fun = this.findFunction('copy');
+          fun(e); // 复制节点 清空剪贴板内容
+
+          e.clipboardData.setData('text', '');
+        }
+      }, {
+        key: "paste",
+        value: function paste(e) {
+          // 剪贴板存在内容 默认粘贴内容
+          var str = e.clipboardData.getData('Text');
+          if (str) return;
+          var fun = this.findFunction('paste');
+          fun(e);
+        }
+      }, {
+        key: "cut",
+        value: function cut(e) {
+          // 存在选中内容，默认剪切内容
+          var str = window.getSelection().toString();
+          if (str) return;
+          var fun = this.findFunction('cut');
+          fun(e); // 剪切节点 清空剪贴板内容
+
+          e.clipboardData.setData('text', '');
         }
       }, {
         key: "onkeydown",
         value: function onkeydown(e) {
           // 装饰器包裹的组件dom
-          var wrapDom = _reactDom["default"].findDOMNode(this.__wrappedInstance); // 当前鼠标聚焦的元素
+          var wrapDom = _reactDom["default"].findDOMNode(this.__wrappedInstance);
 
-
-          var target = this.state.target;
-
-          if (wrapDom && wrapDom.contains(target) && typeof this.__wrappedInstance.onkeydown === 'function') {
+          if (wrapDom && wrapDom.contains(this.eventTarget) && typeof this.__wrappedInstance.onkeydown === 'function') {
             var funs = this.__wrappedInstance.onkeydown();
 
             var keys = Object.keys(funs).map(function (i) {
-              // 记录用户自定义的快捷键
-              // funcName 用于函数调用 
-              // keys 用于对比
               return {
                 funcName: i,
                 keys: i.toLocaleLowerCase().split('+')
@@ -133,24 +260,21 @@ var keyboardShortcut = function keyboardShortcut(desc) {
             });
             var shiftKey = e.shiftKey,
                 ctrlKey = e.ctrlKey,
-                key = e.key; // 键盘事件被按下的键
-
-            var targetKeys = (0, _lodash.compact)([shiftKey && 'shift', ctrlKey && 'ctrl', "".concat(key).toLocaleLowerCase()]); // 查找快捷键
-
+                key = e.key;
+            var targetKeys = (0, _lodash.compact)([shiftKey && 'shift', ctrlKey && 'ctrl', "".concat(key).toLocaleLowerCase()]);
             var fun = keys.find(function (item) {
               return arrayEquals(item.keys, targetKeys);
-            }); // 函数调用及禁用默认事件
+            });
 
             if (fun) {
               funs[fun.funcName](e);
-              e.preventDefault();
             }
           }
         }
       }, {
         key: "render",
         value: function render() {
-          var _this2 = this;
+          var _this4 = this;
 
           var _this$props = this.props,
               wrappedRef = _this$props.wrappedRef,
@@ -158,20 +282,19 @@ var keyboardShortcut = function keyboardShortcut(desc) {
 
           return /*#__PURE__*/_react["default"].createElement(WrappedComponent, _extends({}, rest, {
             ref: function ref(c) {
-              _this2.__wrappedInstance = c;
+              _this4.__wrappedInstance = c;
               wrappedRef && wrappedRef(c);
             }
           }));
         }
       }]);
 
-      return _class;
+      return _class2;
     }(_react["default"].Component);
   };
 };
 
-var _default = keyboardShortcut; // 对比两个数组的值是否相等，忽略顺序
-
+var _default = keyboardShortcut;
 exports["default"] = _default;
 
 function arrayEquals(arr1, arr2) {

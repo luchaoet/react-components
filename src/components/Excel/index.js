@@ -2,46 +2,6 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import './index.scss';
 const isFirefox = typeof navigator !== 'undefined' && navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
-const words = [
-  'A',
-  'B',
-  'C',
-  'D',
-  'E',
-  'F',
-  'G',
-  'H',
-  'I',
-  'J',
-  'K',
-  'L',
-  'M',
-  'N',
-  'O',
-  'P',
-  'Q',
-  'R',
-  'S',
-  'T',
-  'U',
-  'V',
-  'W',
-  'X',
-  'Y',
-  'Z',
-];
-// for (let i = 0; i < 100; i++) {
-//   console.log(i, returnAZ(i))
-  
-// }
-
-// function returnAZ(num) {
-//   const a = num%26
-//   const b = Math.floor(num/26)
-//   console.log(a)
-//   return b > 0 ? returnAZ(b) : '' + words[a]
-// }
-
 
 export default class Scroll extends Component {
   constructor(props) {

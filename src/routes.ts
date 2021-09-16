@@ -3,6 +3,7 @@ import { IRouterConfig } from 'ice';
 import Test from '@/pages/Test';
 import Test2 from '@/pages/Test2';
 import Home from '@/pages/Home'
+import Excel from '@/pages/Excel'
 
 const routerConfig: IRouterConfig[] = [
   {
@@ -21,6 +22,10 @@ const routerConfig: IRouterConfig[] = [
       {
         path: '/test2',
         component: Test2,
+      },
+      {
+        path: '/excel',
+        component: Excel,
       },
     ],
   },

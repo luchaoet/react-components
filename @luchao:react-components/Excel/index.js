@@ -52,15 +52,6 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 var isFirefox = typeof navigator !== 'undefined' && navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
-var words = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']; // for (let i = 0; i < 100; i++) {
-//   console.log(i, returnAZ(i))
-// }
-// function returnAZ(num) {
-//   const a = num%26
-//   const b = Math.floor(num/26)
-//   console.log(a)
-//   return b > 0 ? returnAZ(b) : '' + words[a]
-// }
 
 var Scroll = /*#__PURE__*/function (_Component) {
   _inherits(Scroll, _Component);

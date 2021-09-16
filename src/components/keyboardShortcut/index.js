@@ -15,6 +15,9 @@ const keyboardShortcut = (desc) => {
         'contextmenuOutside',
         'onceContextmenuOutside',
       ];
+			clickFuns = [
+				'click', 'clickOutside', 'onceClickOutside'
+			]
       eventTarget = null;
       constructor(props) {
         super(props);
@@ -67,8 +70,12 @@ const keyboardShortcut = (desc) => {
         if (hasContextmenu)
           document.addEventListener('contextmenu', this.contextmenu, false);
 
+				const hasClick = keys.some(
+					(item) => this.clickFuns.indexOf(item) >= 0
+				);
+        if(hasClick) document.addEventListener('click', this.onclick, false);
+
         document.addEventListener('keydown', this.onkeydown, true);
-        document.addEventListener('click', this.onclick, false);
         document.addEventListener('mouseover', this.mouseover, false);
       }
 			componentWillMount() {
@@ -92,8 +99,12 @@ const keyboardShortcut = (desc) => {
         );
         if (hasContextmenu)
           document.removeEventListener('contextmenu', this.contextmenu, false);
-
-        document.removeEventListener('click', this.onclick, false);
+				
+				const hasClick = keys.some(
+					(item) => this.clickFuns.indexOf(item) >= 0
+				);
+        if(hasClick) document.removeEventListener('click', this.onclick, false);
+				
         document.removeEventListener('keydown', this.onkeydown, true);
         document.removeEventListener('mouseover', this.mouseover, false);
       }
@@ -155,8 +166,10 @@ const keyboardShortcut = (desc) => {
       }
       paste(e) {
         // 剪贴板存在内容 默认粘贴内容
-        const str = e.clipboardData.getData('Text');
-        if (str) return;
+        // const str = e.clipboardData.getData('Text');
+				// 存在聚焦的元素 说明鼠标正在输入框中
+				const isWrite = String(document.activeElement.nodeName).toLocaleLowerCase() !== 'body';
+        if (isWrite) return;
         const fun = this.findFunction('paste');
         fun(e);
       }

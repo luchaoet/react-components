@@ -72,6 +72,8 @@ var keyboardShortcut = function keyboardShortcut(desc) {
 
         _defineProperty(_assertThisInitialized(_this), "contextmenuFuns", ['contextmenu', 'contextmenuOutside', 'onceContextmenuOutside']);
 
+        _defineProperty(_assertThisInitialized(_this), "clickFuns", ['click', 'clickOutside', 'onceClickOutside']);
+
         _defineProperty(_assertThisInitialized(_this), "eventTarget", null);
 
         _defineProperty(_assertThisInitialized(_this), "findFunction", function (name) {
@@ -127,8 +129,11 @@ var keyboardShortcut = function keyboardShortcut(desc) {
             return _this2.contextmenuFuns.indexOf(item) >= 0;
           });
           if (hasContextmenu) document.addEventListener('contextmenu', this.contextmenu, false);
+          var hasClick = keys.some(function (item) {
+            return _this2.clickFuns.indexOf(item) >= 0;
+          });
+          if (hasClick) document.addEventListener('click', this.onclick, false);
           document.addEventListener('keydown', this.onkeydown, true);
-          document.addEventListener('click', this.onclick, false);
           document.addEventListener('mouseover', this.mouseover, false);
         }
       }, {
@@ -148,7 +153,10 @@ var keyboardShortcut = function keyboardShortcut(desc) {
             return _this3.contextmenuFuns.indexOf(item) >= 0;
           });
           if (hasContextmenu) document.removeEventListener('contextmenu', this.contextmenu, false);
-          document.removeEventListener('click', this.onclick, false);
+          var hasClick = keys.some(function (item) {
+            return _this3.clickFuns.indexOf(item) >= 0;
+          });
+          if (hasClick) document.removeEventListener('click', this.onclick, false);
           document.removeEventListener('keydown', this.onkeydown, true);
           document.removeEventListener('mouseover', this.mouseover, false);
         }
@@ -227,8 +235,10 @@ var keyboardShortcut = function keyboardShortcut(desc) {
         key: "paste",
         value: function paste(e) {
           // 剪贴板存在内容 默认粘贴内容
-          var str = e.clipboardData.getData('Text');
-          if (str) return;
+          // const str = e.clipboardData.getData('Text');
+          // 存在聚焦的元素 说明鼠标正在输入框中
+          var isWrite = String(document.activeElement.nodeName).toLocaleLowerCase() !== 'body';
+          if (isWrite) return;
           var fun = this.findFunction('paste');
           fun(e);
         }

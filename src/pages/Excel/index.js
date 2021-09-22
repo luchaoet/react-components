@@ -42,7 +42,7 @@ export default class ExcelCom extends React.Component {
       </Switch>
 
       <div style={styles[expression]}>
-        <Excel />
+        <Excel style={{background: 'red'}} cellWidth={100} cellHeight={30} />
       </div>
 
       <div style={{height: 300}}></div>

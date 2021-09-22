@@ -1,163 +1,400 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
+import { colTitle, isFirefox, drawLine } from './tools'
 import './index.scss';
-const isFirefox = typeof navigator !== 'undefined' && navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
 
 export default class Scroll extends Component {
+  ratio = window.devicePixelRatio || 1;
+  defaultConfig = {
+    cellWidth: 80,
+    cellHeight: 25,
+    colHeight: 25,
+    rowWidth: 25,
+  };
+  standard = {};
   constructor(props) {
     super(props);
+    this.position = this.position.bind(this);
+    this.colWidth = this.colWidth.bind(this);
+    this.rowHeight = this.rowHeight.bind(this);
     this.handleWheel = this.handleWheel.bind(this);
     this.state = {
-      widths: {},
+      cellWidth: props.cellWidth || this.defaultConfig.cellWidth,
+      cellHeight: props.cellHeight || this.defaultConfig.cellHeight,
+      // 列头高度
+      colHeight: this.defaultConfig.colHeight,
+      // 行头宽度
+      rowWidth: this.defaultConfig.rowWidth,
+      widths: {
+        0: 200,
+        1: 100,
+        3: 90
+      },
       heights: {},
-      style: {},
-      scrollTop: 100,
-      scrollLeft: 100,
+      styles: {},
+      // 纵向滚动距离
+      scrollTop: 0,
+      // 横向滚动距离
+      scrollLeft: 0, 
+      focusCellStyle: {
+        width: 80,
+        height: 25,
+        top: 30,
+        left: 100,
+      },
+      focusCells: {
+        start: { x: 0, y: 0 },
+        end: null
+      },
+      canvasStyle: {},
+      dataSource: [
+        ['dataSourcedataSourcedataSource', 'B1', 'C1', 'D1', 'E1'],
+        ['A2', 'B2', 'C2', 'D2', 'E2'],
+        ['A3', 'B3', 'C3', 'D3', 'E3'],
+        ['A4', 'B4', 'C4', 'D4', 'E4'],
+        ['A5', 'B5', 'C5', 'D5', 'E5'],
+      ],
+      pageX: -100, 
+      pageY: 100
     };
   }
 
   // row 行 col 列
-
   componentDidMount() {
     const resizeObserver = new ResizeObserver((entries) => {
       for (let entry of entries) {
-        this.canvasInit(entry.target);
+        this.paintInit(entry.target);
       }
     });
     const dom = document.querySelector('#canvas_wrap');
     resizeObserver.observe(dom);
 
     dom?.addEventListener(isFirefox ? 'DOMMouseScroll' : 'mousewheel', this.handleWheel);
-    dom?.addEventListener('mousemove', this.handleMousemove, true);
+    // dom?.addEventListener('mousemove', this.handleMousemove, true);
   }
 
   handleWheel(e) {
     e.preventDefault();
     const { deltaX, deltaY } = e;
-    const { scrollTop, scrollLeft } = this.state;
-    const _scrollTop = scrollTop + deltaY;
-    const _scrollLeft = scrollLeft + deltaX;
+    const { scrollTop, scrollLeft, rowWidth } = this.state;
+    let _deltaX = 0;
+    let _deltaY = 0;
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+      _deltaX = deltaX;
+    } else {
+      _deltaY = deltaY;
+    }
+
+    // 滚动到起点 就不必要刷新了
+    // if(
+    //   scrollLeft <= 0 && _deltaX <= 0 &&
+    //   scrollTop <= 0 && _deltaY <= 0
+    //   )return;
+    
+    const _scrollTop = scrollTop + _deltaY;
+    const _scrollLeft = scrollLeft + _deltaX;
+
+    
+
     this.setState(
       {
         scrollTop: _scrollTop <= 0 ? 0 : _scrollTop,
         scrollLeft: _scrollLeft <= 0 ? 0 : _scrollLeft,
       },
       () => {
-        this.canvasInit();
+        this.paintInit();
       },
     );
   }
 
-  handleMousemove(e) {
-    // console.log(e);
+  handleMousemove = (e) => {
+    console.log(this.position(e))
   }
 
-  canvasInit(dom) {
+  paintInit(dom) {
     dom = dom || document.querySelector('#canvas_wrap');
-    const { widths, heights } = this.state;
-    const { width, height } = dom.getBoundingClientRect();
-    dom.innerHTML = '';
-    const canvas = createElement(width, height);
-    const canvas2 = createElement(width, height);
+    const { endColIndex } = this.standard;
+    endColIndex && this.setState({rowWidth: this.defaultConfig.rowWidth + (endColIndex.toString().length - 1) * 10})
+    if(dom){
+      const { width, height } = dom.getBoundingClientRect();
+      this.canvasInit(width, height);
+    }
+  }
 
-    let scrollLeft = this.state.scrollLeft;
-    // console.log(scrollLeft);
-    let y = 25;
+  canvasInit(w, h) {
+    const rowColCanvas = document.getElementById('row-col-canvas');
+    const contentCanvas = document.getElementById('content-canvas');
+    if(!rowColCanvas || !contentCanvas)return;
+
+    rowColCanvas.width = w * this.ratio; // 实际渲染像素
+    rowColCanvas.height = h * this.ratio; // 实际渲染像素
+    rowColCanvas.style.width = `${w}px`; // 控制显示大小
+    rowColCanvas.style.height = `${h}px`; // 控制显示大小
+    const rcctx = rowColCanvas.getContext('2d');
+    rcctx.setTransform(this.ratio, 0, 0, this.ratio, 0, 0);
+
+    contentCanvas.width = w * this.ratio;
+    contentCanvas.height = h * this.ratio;
+    contentCanvas.style.width = `${w}px`;
+    contentCanvas.style.height = `${h}px`;
+    const cctx = contentCanvas.getContext('2d');
+    cctx.setTransform(this.ratio, 0, 0, this.ratio, 0, 0);
+
+    const { scrollLeft, scrollTop } = this.state;
+
+    // 寻找开始位置处是第几列
+    // 宽度累加 与滚动条的偏移量对比 寻找从第几列开始绘制
     let startRowIndex = 0;
-    // let endRowIndex = 0;
-    while (y < scrollLeft) {
-      y = y + (widths[startRowIndex] || 80);
-      startRowIndex++;
+    let offsetX = this.colWidth(startRowIndex);
+    while (offsetX < scrollLeft) {
+      startRowIndex ++;
+      offsetX += this.colWidth(startRowIndex);
+    }
+    // 寻找结束位置处是第几列
+    // 宽度累加 寻找可视区域需要绘制到多少列 默认最初的宽度是第一列显示出来的宽度
+    let row_acc = offsetX - scrollLeft;
+    let endRowIndex = startRowIndex;
+    while(row_acc < w) {
+      endRowIndex ++;
+      row_acc += this.colWidth(endRowIndex);
+    }
+    // 可视区域第一列绘制的起始位置 列偏移量
+    const cellOffsetX = offsetX - scrollLeft - this.colWidth(startRowIndex);;
+
+    // 寻找开始位置处是第几行
+    let startColIndex = 0;
+    let offsetY = this.rowHeight(startColIndex);
+    while (offsetY < scrollTop) {
+      startColIndex ++;
+      offsetY += this.rowHeight(startColIndex);
+    }
+    // 寻找结束位置处是第几行
+    // 高度累加 寻找可视区域需要绘制到多少行 默认最初的宽度是第一行显示出来的高度
+    let col_acc = offsetY - scrollTop;
+    let endColIndex = startColIndex;
+    while(col_acc < h) {
+      endColIndex ++;
+      col_acc += this.rowHeight(endColIndex);
     }
 
-    const x = y - (widths[startRowIndex] || 80) - scrollLeft;
-    // console.log(x);
+    // 可视区域第一行绘制的起始位置 行偏移量
+    const cellOffsetY = offsetY - scrollTop - this.rowHeight(endColIndex);
 
-    dom.appendChild(canvas);
-    dom.appendChild(canvas2);
-    this.paint(canvas);
-    this.paintRowCanvas(canvas2, x, startRowIndex, 1000);
-    // this.paintColCanvas(canvas2, startColIndex, endColIndex);
+    this.standard = {
+      cellOffsetX, startRowIndex, endRowIndex,
+      cellOffsetY, startColIndex, endColIndex,
+      width: w, height: h
+    }
+
+    // 列头 从x位置开始绘制 startRowIndex列 到 startRowIndex + 20列
+    this.paintRow(rcctx, cellOffsetX, startRowIndex, endRowIndex, w);
+    // 行头
+    this.paintCol(rcctx, cellOffsetY, startColIndex, endColIndex, h);
+
+    // 竖线
+    // this.paintVerticalLine(cctx, cellOffsetX, startRowIndex, endRowIndex, h);
+    // // 水平线
+    // this.paintHorizontalLine(cctx, cellOffsetY, startColIndex, endColIndex, w);
+
+    this.paintCells({
+      ctx: cctx, 
+      cellOffsetX, 
+      cellOffsetY, 
+      startRowIndex, 
+      endRowIndex, 
+      startColIndex, 
+      endColIndex, 
+      width: w, 
+      height: h
+    })
+
+  }
+  paintCells = ({ctx, cellOffsetX, cellOffsetY, startRowIndex, endRowIndex, startColIndex, endColIndex, width, height}) => {
+    const { rowWidth, colHeight, dataSource } = this.state;
+    let startTop = cellOffsetY + colHeight;
+    
+    for (let i = startColIndex; i <= endColIndex; i++) {
+      // 当前单元格宽度
+      const h = this.rowHeight(i);
+      // 单元格开始位置
+      const startPointY = startTop - 0.5;
+      // 下一个单元格开始位置
+      startTop += h;
+      
+      let startLeft = cellOffsetX + rowWidth;
+      for (let j = startRowIndex; j <= endRowIndex; j++) {
+        const text = dataSource?.[i]?.[j] || '';
+        const w = this.colWidth(j)
+        // 单元格开始位置
+        const startPointX = startLeft - 0.5;
+        // 下一个单元格开始位置
+        startLeft += w;
+        // 矩形填充
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(startPointX, startPointY, w, h);
+        // 矩形边框
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = '#cecece';
+        ctx.strokeRect(startPointX, startPointY, w, h);
+
+        // 文本
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.font = '16px PingFang SC';
+        ctx.fillStyle = '#333';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(text, startPointX + w / 2, startPointY + h / 2);
+
+      }
+    }
+
+    ctx.clearRect(0, 0, rowWidth, height);
+    ctx.clearRect(0, 0, width, colHeight);
   }
 
-  paintRowCanvas(canvas, x, start, end) {
-    const ctx = canvas.getContext('2d');
-    const startX = x + 25;
-    let i = 0;
-    for (let index = start; index < end; index++) {
+  /**
+   * 绘制可视区域的列头
+   * @param {*} ctx 
+   * @param {*} x 首个单元格的起始位置
+   * @param {*} start 起始单元格的索引
+   * @param {*} end 结束单元格的索引
+   */
+  paintRow(ctx, x, start, end, w) {
+    const { rowWidth, widths, cellWidth, colHeight } = this.state;
+
+    // 先擦除后绘制
+    ctx.clearRect(0, 0, w, colHeight);
+
+    let startLeft = x + rowWidth;
+
+    for (let index = start; index <= end; index++) {
+      // 当前单元格宽度
+      const width = this.colWidth(index);
+      // 单元格开始位置
+      const startPointX = startLeft - 0.5;
+      // 下一个单元格开始位置
+      startLeft += width;
+      
       ctx.beginPath();
-      const startPointX = i * 80 - 0.5 + startX;
-      const startPointY = 0;
+
       // 矩形填充
       ctx.fillStyle = '#f5f5f5';
-      ctx.fillRect(startPointX, startPointY, 80, 25);
+      ctx.fillRect(startPointX, 0, width, colHeight);
+
       // 矩形边框
       ctx.lineWidth = 1;
       ctx.strokeStyle = '#cecece';
-      ctx.strokeRect(startPointX, startPointY, 80, 25);
+      ctx.strokeRect(startPointX, 0, width, colHeight);
 
-      ctx.globalCompositeOperation = 'source-over';
       // 文本
+      ctx.globalCompositeOperation = 'source-over';
       ctx.font = '16px PingFang SC';
       ctx.fillStyle = '#333';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(index + 1, startPointX + 40, startPointY + 12.5);
+      // 绘制列名
+      ctx.fillText(colTitle(index + 1), startPointX + width / 2, colHeight / 2);
       ctx.stroke();
       ctx.closePath();
-      i++;
     }
-    for (let index = 0; index < 20; index++) {
+    ctx.clearRect(0, 0, rowWidth - 0.5, colHeight + 1);
+  }
+
+  /**
+   * 绘制可视区域的行头
+   * @param {*} ctx 
+   * @param {*} y 首个单元格的起始位置
+   * @param {*} start 起始单元格的索引
+   * @param {*} end 结束单元格的索引
+   * @param {*} h 
+   */
+  paintCol(ctx, y, start, end, h) {
+    const { rowWidth, colHeight } = this.state;
+
+    // 先擦除后绘制
+    ctx.clearRect(0, 0, rowWidth, h);
+
+    let startTop = y + colHeight;
+
+    for (let index = start; index <= end; index++) {
+      // 当前单元格宽度
+      const height = this.rowHeight(index);
+      // 单元格开始位置
+      const startPointY = startTop - 0.5;
+      // 下一个单元格开始位置
+      startTop += height;
+      
       ctx.beginPath();
-      const startY = 25;
-      const startPointX = 0;
-      const startPointY = index * 25 - 0.5 + startY;
+
       // 矩形填充
       ctx.fillStyle = '#f5f5f5';
-      ctx.fillRect(startPointX, startPointY, 25, 25);
+      ctx.fillRect(0, startPointY, rowWidth, height);
+
       // 矩形边框
       ctx.lineWidth = 1;
       ctx.strokeStyle = '#cecece';
-      ctx.strokeRect(startPointX, startPointY, 25, 25);
+      ctx.strokeRect(0, startPointY, rowWidth, height);
 
-      ctx.globalCompositeOperation = 'source-over';
       // 文本
-      ctx.font = '14px PingFang SC';
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.font = '16px PingFang SC';
       ctx.fillStyle = '#333';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(index + 1, startPointX + 12.5, startPointY + 12.5);
+      // 绘制列名
+      ctx.fillText(index + 1, rowWidth / 2, startPointY + height / 2);
       ctx.stroke();
       ctx.closePath();
+      ctx.clearRect(0, 0, rowWidth - 0.5, colHeight + 1);
     }
   }
 
-  paint(canvas) {
-    const { width, height } = canvas.getBoundingClientRect();
-    const ctx = canvas.getContext('2d');
-    // 横线
-    for (let index = 0; index < height / 25; index++) {
-      ctx.beginPath();
-      ctx.lineWidth = 1;
-      ctx.strokeStyle = '#cecece';
-      const startPointX = 25;
-      const startPointY = index * 25 - 0.5;
-      ctx.moveTo(startPointX, startPointY);
-      ctx.lineTo(startPointX + width, startPointY);
-      ctx.stroke();
-      ctx.closePath();
-    }
+  paintVerticalLine(ctx, x, start, end, h) {
+    const { rowWidth, widths, cellWidth, colHeight } = this.state;
+
+    let startLeft = x + rowWidth;
+
     // 竖线
-    for (let index = 0; index < 100; index++) {
-      ctx.beginPath();
-      ctx.lineWidth = 1;
-      ctx.strokeStyle = '#cecece';
-      const startPointX = 25 + index * 80 - 0.5;
-      const startPointY = 25;
-      ctx.moveTo(startPointX, startPointY);
-      ctx.lineTo(startPointX, startPointY + height);
-      ctx.stroke();
-      ctx.closePath();
+    for (let index = start; index <= end; index++) {
+      // 当前单元格宽度
+      const width = this.colWidth(index);
+      // 单元格开始位置
+      const startPointX = startLeft - 0.5;
+      // 下一个单元格开始位置
+      startLeft += width;
+
+
+      drawLine({ 
+        context: ctx, 
+        x1: startPointX, 
+        y1: colHeight, 
+        x2: startPointX, 
+        y2: h,
+      })
+    }
+  }
+
+  paintHorizontalLine(ctx, y, start, end, w) {
+    const { rowWidth, colHeight } = this.state;
+
+    let startTop = y + colHeight;
+
+    // 竖线
+    for (let index = start; index <= end; index++) {
+      // 当前单元格宽度
+      const height = this.rowHeight(index);
+      // 单元格开始位置
+      const startPointY = startTop - 0.5;
+      // 下一个单元格开始位置
+      startTop += height;
+
+      drawLine({ 
+        context: ctx, 
+        x1: rowWidth, 
+        y1: startPointY, 
+        x2: w, 
+        y2: startPointY,
+      })
     }
   }
 
@@ -170,81 +407,95 @@ export default class Scroll extends Component {
     });
   };
 
+  handleCanvasClick = (e) => {
+    console.log(this.position(e))
+  }
+
+  position(e) {
+    const {pageX, pageY, currentTarget } = e;
+    const offsetLeft = pageX - currentTarget.offsetLeft;
+    const offsetTop = pageY - currentTarget.offsetTop;
+    const { colHeight, rowWidth, scrollTop, scrollLeft } = this.state;
+
+    let x = null, y = null, row = null, col = null;
+    const { cellOffsetX, cellOffsetY, startRowIndex, startColIndex } = this.standard;
+
+    if(offsetTop <= colHeight) {
+      y = -1;
+      row = -1;
+    }else{
+      y = startColIndex;
+      let col_acc = colHeight + cellOffsetY + this.rowHeight(y);
+      while(col_acc <= offsetTop) {
+        y++;
+        col_acc += this.rowHeight(y);
+      }
+      row = y + 1;
+    }
+
+    if(offsetLeft <= rowWidth) {
+      x = -1;
+      col = -1;
+    }else{
+      x = startRowIndex;
+      let row_acc = rowWidth + cellOffsetX + this.colWidth(x);
+      while(row_acc <= offsetLeft) {
+        x++;
+        row_acc += this.colWidth(x);
+      }
+      col = x + 1;
+    }
+    
+    return { 
+      x, 
+      y, 
+      row, 
+      col: colTitle(col), 
+      cell: `${colTitle(col)}${row}`, 
+      offsetLeft, 
+      offsetTop
+    }
+  }
+
+  /**
+   * @param {*} i 第几列
+   * @returns 列宽
+   */
+  colWidth(i) {
+    const { widths, cellWidth } = this.state;
+    return widths[i] || cellWidth;
+  }
+
+  /**
+   * @param {*} i 第几行
+   * @returns 行高
+   */
+  rowHeight(i) {
+    const { heights, cellHeight } = this.state;
+    return heights[i] || cellHeight;
+  }
+
   render() {
-    const { style: sty } = this.state;
+    const { styles, focusCellStyle, canvasStyle, scrollLeft, scrollTop, pageX, pageY } = this.state;
     const { style, className } = this.props;
     const _className = cx('excel-wrap', className);
-    const _style = { ...style, ...sty };
-    return <div className={_className} style={_style} id="canvas_wrap"></div>;
+    const _style = { ...style, ...styles };
+    const _focusCellStyle = {
+      ...focusCellStyle,
+      top:  focusCellStyle.top - scrollTop,
+      left:  focusCellStyle.left - scrollLeft
+    }
+    // console.log(pageX, pageY)
+    return <div className={_className} style={_style} id="canvas_wrap" onClick={this.handleCanvasClick}>
+      <canvas id="row-col-canvas"></canvas>
+      <canvas id="content-canvas"></canvas>
+      {/* <div className='excel-focus-cell' style={_focusCellStyle}>12</div> */}
+      {/* <div style={{
+        position: 'absolute',
+        left: pageX,
+        top: pageY,
+        zIndex: 6
+      }}>1</div> */}
+    </div>;
   }
 }
-
-function createElement(w = 300, h = 150) {
-  var ratio = window.devicePixelRatio || 1;
-  var canvas = document.createElement('canvas');
-  canvas.width = w * ratio; // 实际渲染像素
-  canvas.height = h * ratio; // 实际渲染像素
-  canvas.style.width = `${w}px`; // 控制显示大小
-  canvas.style.height = `${h}px`; // 控制显示大小
-  canvas.getContext('2d').setTransform(ratio, 0, 0, ratio, 0, 0);
-  return canvas;
-}
-
-function drawLine({ context, startPointX = 0, startPointY = 0, lineWidth = 1, strokeStyle = '#333', height }) {
-  context.beginPath();
-  context.lineWidth = lineWidth;
-  context.strokeStyle = strokeStyle;
-  const linkStartPointX = startPointX;
-  const linkStartPointY = startPointY;
-  context.moveTo(linkStartPointX, linkStartPointY);
-  context.lineTo(linkStartPointX + height, linkStartPointY);
-  context.stroke();
-  context.closePath();
-}
-// const _words = [
-//   '',
-//   'A',
-//   'B',
-//   'C',
-//   'D',
-//   'E',
-//   'F',
-//   'G',
-//   'H',
-//   'I',
-//   'J',
-//   'K',
-//   'L',
-//   'M',
-//   'N',
-//   'O',
-//   'P',
-//   'Q',
-//   'R',
-//   'S',
-//   'T',
-//   'U',
-//   'V',
-//   'W',
-//   'X',
-//   'Y',
-//   'Z',
-// ];
-// function rowName(index) {
-//   if (index <= 25) {
-//     return _words[index];
-//   }
-
-//   const floor = Math.floor(index / 26);
-//   const rem = index % 26;
-
-//   return rowName(floor) + _words[rem];
-// }
-
-// console.log(rowName(26));
-// console.log(rowName(85852));
-
-// for (let index = 85845; index < 85855; index++) {
-//   const a = rowName(index);
-//   console.log(a, index);
-// }

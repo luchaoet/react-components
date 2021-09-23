@@ -47,15 +47,10 @@ export default class Scroll extends Component {
         end: null
       },
       canvasStyle: {},
-      dataSource: [
-        ['dataSourcedataSourcedataSource', 'B1', 'C1', 'D1', 'E1'],
-        ['A2', 'B2', 'C2', 'D2', 'E2'],
-        ['A3', 'B3', 'C3', 'D3', 'E3'],
-        ['A4', 'B4', 'C4', 'D4', 'E4'],
-        ['A5', 'B5', 'C5', 'D5', 'E5'],
-      ],
+      dataSource: props.dataSource,
       pageX: -100, 
-      pageY: 100
+      pageY: 100,
+      dataSource: props.dataSource,
     };
   }
 
@@ -71,6 +66,14 @@ export default class Scroll extends Component {
 
     dom?.addEventListener(isFirefox ? 'DOMMouseScroll' : 'mousewheel', this.handleWheel);
     // dom?.addEventListener('mousemove', this.handleMousemove, true);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.setState({
+      dataSource: nextProps.dataSource
+    }, () => {
+      this.paintInit();
+    })
   }
 
   handleWheel(e) {

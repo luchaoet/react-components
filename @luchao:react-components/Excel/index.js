@@ -156,7 +156,7 @@ var Scroll = /*#__PURE__*/function (_Component) {
     _this.colWidth = _this.colWidth.bind(_assertThisInitialized(_this));
     _this.rowHeight = _this.rowHeight.bind(_assertThisInitialized(_this));
     _this.handleWheel = _this.handleWheel.bind(_assertThisInitialized(_this));
-    _this.state = {
+    _this.state = _defineProperty({
       cellWidth: props.cellWidth || _this.defaultConfig.cellWidth,
       cellHeight: props.cellHeight || _this.defaultConfig.cellHeight,
       // 列头高度
@@ -188,10 +188,10 @@ var Scroll = /*#__PURE__*/function (_Component) {
         end: null
       },
       canvasStyle: {},
-      dataSource: [['dataSourcedataSourcedataSource', 'B1', 'C1', 'D1', 'E1'], ['A2', 'B2', 'C2', 'D2', 'E2'], ['A3', 'B3', 'C3', 'D3', 'E3'], ['A4', 'B4', 'C4', 'D4', 'E4'], ['A5', 'B5', 'C5', 'D5', 'E5']],
+      dataSource: props.dataSource,
       pageX: -100,
       pageY: 100
-    };
+    }, "dataSource", props.dataSource);
     return _this;
   } // row 行 col 列
 
@@ -222,17 +222,28 @@ var Scroll = /*#__PURE__*/function (_Component) {
       dom === null || dom === void 0 ? void 0 : dom.addEventListener(_tools.isFirefox ? 'DOMMouseScroll' : 'mousewheel', this.handleWheel); // dom?.addEventListener('mousemove', this.handleMousemove, true);
     }
   }, {
+    key: "componentWillReceiveProps",
+    value: function componentWillReceiveProps(nextProps) {
+      var _this3 = this;
+
+      this.setState({
+        dataSource: nextProps.dataSource
+      }, function () {
+        _this3.paintInit();
+      });
+    }
+  }, {
     key: "handleWheel",
     value: function handleWheel(e) {
-      var _this3 = this;
+      var _this4 = this;
 
       e.preventDefault();
       var deltaX = e.deltaX,
           deltaY = e.deltaY;
-      var _this$state2 = this.state,
-          scrollTop = _this$state2.scrollTop,
-          scrollLeft = _this$state2.scrollLeft,
-          rowWidth = _this$state2.rowWidth;
+      var _this$state3 = this.state,
+          scrollTop = _this$state3.scrollTop,
+          scrollLeft = _this$state3.scrollLeft,
+          rowWidth = _this$state3.rowWidth;
       var _deltaX = 0;
       var _deltaY = 0;
 
@@ -255,7 +266,7 @@ var Scroll = /*#__PURE__*/function (_Component) {
         scrollTop: _scrollTop <= 0 ? 0 : _scrollTop,
         scrollLeft: _scrollLeft <= 0 ? 0 : _scrollLeft
       }, function () {
-        _this3.paintInit();
+        _this4.paintInit();
       });
     }
   }, {
@@ -297,9 +308,9 @@ var Scroll = /*#__PURE__*/function (_Component) {
       contentCanvas.style.height = "".concat(h, "px");
       var cctx = contentCanvas.getContext('2d');
       cctx.setTransform(this.ratio, 0, 0, this.ratio, 0, 0);
-      var _this$state3 = this.state,
-          scrollLeft = _this$state3.scrollLeft,
-          scrollTop = _this$state3.scrollTop; // 寻找开始位置处是第几列
+      var _this$state4 = this.state,
+          scrollLeft = _this$state4.scrollLeft,
+          scrollTop = _this$state4.scrollTop; // 寻找开始位置处是第几列
       // 宽度累加 与滚动条的偏移量对比 寻找从第几列开始绘制
 
       var startRowIndex = 0;
@@ -385,11 +396,11 @@ var Scroll = /*#__PURE__*/function (_Component) {
      * @param {*} end 结束单元格的索引
      */
     function paintRow(ctx, x, start, end, w) {
-      var _this$state4 = this.state,
-          rowWidth = _this$state4.rowWidth,
-          widths = _this$state4.widths,
-          cellWidth = _this$state4.cellWidth,
-          colHeight = _this$state4.colHeight; // 先擦除后绘制
+      var _this$state5 = this.state,
+          rowWidth = _this$state5.rowWidth,
+          widths = _this$state5.widths,
+          cellWidth = _this$state5.cellWidth,
+          colHeight = _this$state5.colHeight; // 先擦除后绘制
 
       ctx.clearRect(0, 0, w, colHeight);
       var startLeft = x + rowWidth;
@@ -435,9 +446,9 @@ var Scroll = /*#__PURE__*/function (_Component) {
   }, {
     key: "paintCol",
     value: function paintCol(ctx, y, start, end, h) {
-      var _this$state5 = this.state,
-          rowWidth = _this$state5.rowWidth,
-          colHeight = _this$state5.colHeight; // 先擦除后绘制
+      var _this$state6 = this.state,
+          rowWidth = _this$state6.rowWidth,
+          colHeight = _this$state6.colHeight; // 先擦除后绘制
 
       ctx.clearRect(0, 0, rowWidth, h);
       var startTop = y + colHeight;
@@ -473,11 +484,11 @@ var Scroll = /*#__PURE__*/function (_Component) {
   }, {
     key: "paintVerticalLine",
     value: function paintVerticalLine(ctx, x, start, end, h) {
-      var _this$state6 = this.state,
-          rowWidth = _this$state6.rowWidth,
-          widths = _this$state6.widths,
-          cellWidth = _this$state6.cellWidth,
-          colHeight = _this$state6.colHeight;
+      var _this$state7 = this.state,
+          rowWidth = _this$state7.rowWidth,
+          widths = _this$state7.widths,
+          cellWidth = _this$state7.cellWidth,
+          colHeight = _this$state7.colHeight;
       var startLeft = x + rowWidth; // 竖线
 
       for (var index = start; index <= end; index++) {
@@ -499,9 +510,9 @@ var Scroll = /*#__PURE__*/function (_Component) {
   }, {
     key: "paintHorizontalLine",
     value: function paintHorizontalLine(ctx, y, start, end, w) {
-      var _this$state7 = this.state,
-          rowWidth = _this$state7.rowWidth,
-          colHeight = _this$state7.colHeight;
+      var _this$state8 = this.state,
+          rowWidth = _this$state8.rowWidth,
+          colHeight = _this$state8.colHeight;
       var startTop = y + colHeight; // 竖线
 
       for (var index = start; index <= end; index++) {
@@ -528,11 +539,11 @@ var Scroll = /*#__PURE__*/function (_Component) {
           currentTarget = e.currentTarget;
       var offsetLeft = pageX - currentTarget.offsetLeft;
       var offsetTop = pageY - currentTarget.offsetTop;
-      var _this$state8 = this.state,
-          colHeight = _this$state8.colHeight,
-          rowWidth = _this$state8.rowWidth,
-          scrollTop = _this$state8.scrollTop,
-          scrollLeft = _this$state8.scrollLeft;
+      var _this$state9 = this.state,
+          colHeight = _this$state9.colHeight,
+          rowWidth = _this$state9.rowWidth,
+          scrollTop = _this$state9.scrollTop,
+          scrollLeft = _this$state9.scrollLeft;
       var x = null,
           y = null,
           row = null,
@@ -591,9 +602,9 @@ var Scroll = /*#__PURE__*/function (_Component) {
   }, {
     key: "colWidth",
     value: function colWidth(i) {
-      var _this$state9 = this.state,
-          widths = _this$state9.widths,
-          cellWidth = _this$state9.cellWidth;
+      var _this$state10 = this.state,
+          widths = _this$state10.widths,
+          cellWidth = _this$state10.cellWidth;
       return widths[i] || cellWidth;
     }
     /**
@@ -604,22 +615,22 @@ var Scroll = /*#__PURE__*/function (_Component) {
   }, {
     key: "rowHeight",
     value: function rowHeight(i) {
-      var _this$state10 = this.state,
-          heights = _this$state10.heights,
-          cellHeight = _this$state10.cellHeight;
+      var _this$state11 = this.state,
+          heights = _this$state11.heights,
+          cellHeight = _this$state11.cellHeight;
       return heights[i] || cellHeight;
     }
   }, {
     key: "render",
     value: function render() {
-      var _this$state11 = this.state,
-          styles = _this$state11.styles,
-          focusCellStyle = _this$state11.focusCellStyle,
-          canvasStyle = _this$state11.canvasStyle,
-          scrollLeft = _this$state11.scrollLeft,
-          scrollTop = _this$state11.scrollTop,
-          pageX = _this$state11.pageX,
-          pageY = _this$state11.pageY;
+      var _this$state12 = this.state,
+          styles = _this$state12.styles,
+          focusCellStyle = _this$state12.focusCellStyle,
+          canvasStyle = _this$state12.canvasStyle,
+          scrollLeft = _this$state12.scrollLeft,
+          scrollTop = _this$state12.scrollTop,
+          pageX = _this$state12.pageX,
+          pageY = _this$state12.pageY;
       var _this$props = this.props,
           style = _this$props.style,
           className = _this$props.className;

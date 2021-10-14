@@ -13,7 +13,11 @@ var _classnames = _interopRequireDefault(require("classnames"));
 
 var _tools = require("./tools");
 
+var _keyboardShortcut = _interopRequireDefault(require("../keyboardShortcut"));
+
 require("./index.scss");
+
+var _dec, _class;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -53,17 +57,20 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var Scroll = /*#__PURE__*/function (_Component) {
-  _inherits(Scroll, _Component);
+var timer = null;
+var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE__*/function (_Component) {
+  _inherits(Excel, _Component);
 
-  var _super = _createSuper(Scroll);
+  var _super = _createSuper(Excel);
 
-  function Scroll(props) {
+  function Excel(props) {
     var _this;
 
-    _classCallCheck(this, Scroll);
+    _classCallCheck(this, Excel);
 
     _this = _super.call(this, props);
+
+    _defineProperty(_assertThisInitialized(_this), "mouseDownSign", false);
 
     _defineProperty(_assertThisInitialized(_this), "ratio", window.devicePixelRatio || 1);
 
@@ -75,10 +82,6 @@ var Scroll = /*#__PURE__*/function (_Component) {
     });
 
     _defineProperty(_assertThisInitialized(_this), "standard", {});
-
-    _defineProperty(_assertThisInitialized(_this), "handleMousemove", function (e) {
-      console.log(_this.position(e));
-    });
 
     _defineProperty(_assertThisInitialized(_this), "paintCells", function (_ref) {
       var ctx = _ref.ctx,
@@ -93,10 +96,23 @@ var Scroll = /*#__PURE__*/function (_Component) {
       var _this$state = _this.state,
           rowWidth = _this$state.rowWidth,
           colHeight = _this$state.colHeight,
-          dataSource = _this$state.dataSource;
+          dataSource = _this$state.dataSource,
+          focusCells = _this$state.focusCells;
       var startTop = cellOffsetY + colHeight;
+      var start = focusCells.start,
+          end = focusCells.end;
 
-      for (var i = startColIndex; i <= endColIndex; i++) {
+      var _start = start || {
+        x: -1,
+        y: -1
+      };
+
+      var _end = end || {
+        x: -1,
+        y: -1
+      };
+
+      for (var i = startRowIndex; i <= endRowIndex; i++) {
         // 当前单元格宽度
         var h = _this.rowHeight(i); // 单元格开始位置
 
@@ -106,7 +122,7 @@ var Scroll = /*#__PURE__*/function (_Component) {
         startTop += h;
         var startLeft = cellOffsetX + rowWidth;
 
-        for (var j = startRowIndex; j <= endRowIndex; j++) {
+        for (var j = startColIndex; j <= endColIndex; j++) {
           var _dataSource$i;
 
           var text = (dataSource === null || dataSource === void 0 ? void 0 : (_dataSource$i = dataSource[i]) === null || _dataSource$i === void 0 ? void 0 : _dataSource$i[j]) || '';
@@ -118,45 +134,134 @@ var Scroll = /*#__PURE__*/function (_Component) {
 
           startLeft += w; // 矩形填充
 
-          ctx.fillStyle = '#fff';
-          ctx.fillRect(startPointX, startPointY, w, h); // 矩形边框
+          (0, _tools.fillRect)({
+            context: ctx,
+            fillStyle: j === _start.x && i === _start.y ? '#fff' : '#faf8f8',
+            x: startPointX,
+            y: startPointY,
+            width: w,
+            height: h
+          }); // 矩形边框
 
-          ctx.lineWidth = 1;
-          ctx.strokeStyle = '#cecece';
-          ctx.strokeRect(startPointX, startPointY, w, h); // 文本
+          (0, _tools.strokeRect)({
+            context: ctx,
+            strokeStyle: '#cecece',
+            x: startPointX,
+            y: startPointY,
+            width: w,
+            height: h
+          }); // 文本
 
-          ctx.globalCompositeOperation = 'source-over';
-          ctx.font = '16px PingFang SC';
-          ctx.fillStyle = '#333';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText(text, startPointX + w / 2, startPointY + h / 2);
+          (0, _tools.fillText)({
+            context: ctx,
+            globalCompositeOperation: 'source-over',
+            font: '14px PingFang SC',
+            fillStyle: '#333',
+            text: text,
+            x: startPointX + 5,
+            y: startPointY + h / 2
+          });
         }
       }
 
-      ctx.clearRect(0, 0, rowWidth, height);
-      ctx.clearRect(0, 0, width, colHeight);
+      startTop = cellOffsetY + colHeight;
+
+      for (var _i = startRowIndex; _i <= endRowIndex; _i++) {
+        // 当前单元格宽度
+        var _h = _this.rowHeight(_i); // 单元格开始位置
+
+
+        var _startPointY = startTop - 0.5; // 下一个单元格开始位置
+
+
+        startTop += _h;
+
+        var _startLeft = cellOffsetX + rowWidth;
+
+        for (var _j = startColIndex; _j <= endColIndex; _j++) {
+          var _w = _this.colWidth(_j); // 单元格开始位置
+
+
+          var _startPointX = _startLeft - 0.5; // 下一个单元格开始位置
+
+
+          _startLeft += _w; // 左边线
+
+          if (_j === _start.x && _i >= _start.y && _i <= _end.y) {
+            (0, _tools.drawLine)({
+              context: ctx,
+              x1: _startPointX,
+              y1: _startPointY,
+              x2: _startPointX,
+              y2: _startPointY + _h,
+              lineWidth: 2,
+              strokeStyle: '#227346'
+            });
+          } // 上边线
+
+
+          if (_i === _start.y && _j >= _start.x && _j <= _end.x) {
+            (0, _tools.drawLine)({
+              context: ctx,
+              x1: _startPointX,
+              y1: _startPointY,
+              x2: _startPointX + _w,
+              y2: _startPointY,
+              lineWidth: 2,
+              strokeStyle: '#227346'
+            });
+          } // 右边线
+
+
+          if (_j === _end.x && _i >= _start.y && _i <= _end.y) {
+            (0, _tools.drawLine)({
+              context: ctx,
+              x1: _startPointX + _w,
+              y1: _startPointY,
+              x2: _startPointX + _w,
+              y2: _startPointY + _h,
+              lineWidth: 2,
+              strokeStyle: '#227346'
+            });
+          } // 下边线
+
+
+          if (_i === _end.y && _j >= _start.x && _j <= _end.x) {
+            (0, _tools.drawLine)({
+              context: ctx,
+              x1: _startPointX,
+              y1: _startPointY + _h,
+              x2: _startPointX + _w,
+              y2: _startPointY + _h,
+              lineWidth: 2,
+              strokeStyle: '#227346'
+            });
+          }
+        }
+      } // 单元格canvas清除表头的区域
+
+
+      ctx.clearRect(0, 0, rowWidth + 0.5, height);
+      ctx.clearRect(0, 0, width, colHeight + 0.5);
     });
 
     _defineProperty(_assertThisInitialized(_this), "setCursor", function () {
       var type = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'pointer';
 
-      _this.setState({
-        style: _objectSpread(_objectSpread({}, _this.state.style), {}, {
-          cursor: type
-        })
+      _this.setState(function (prevState) {
+        return {
+          style: _objectSpread(_objectSpread({}, prevState.style), {}, {
+            cursor: type
+          })
+        };
       });
     });
 
-    _defineProperty(_assertThisInitialized(_this), "handleCanvasClick", function (e) {
-      console.log(_this.position(e));
-    });
-
+    _this.colWidth = _tools.colWidth.bind(_assertThisInitialized(_this));
+    _this.rowHeight = _tools.rowHeight.bind(_assertThisInitialized(_this));
     _this.position = _this.position.bind(_assertThisInitialized(_this));
-    _this.colWidth = _this.colWidth.bind(_assertThisInitialized(_this));
-    _this.rowHeight = _this.rowHeight.bind(_assertThisInitialized(_this));
     _this.handleWheel = _this.handleWheel.bind(_assertThisInitialized(_this));
-    _this.state = _defineProperty({
+    _this.state = {
       cellWidth: props.cellWidth || _this.defaultConfig.cellWidth,
       cellHeight: props.cellHeight || _this.defaultConfig.cellHeight,
       // 列头高度
@@ -181,22 +286,29 @@ var Scroll = /*#__PURE__*/function (_Component) {
         left: 100
       },
       focusCells: {
-        start: {
-          x: 0,
-          y: 0
-        },
+        start: null,
         end: null
       },
       canvasStyle: {},
       dataSource: props.dataSource,
       pageX: -100,
       pageY: 100
-    }, "dataSource", props.dataSource);
+    };
     return _this;
-  } // row 行 col 列
+  }
 
+  _createClass(Excel, [{
+    key: "onkeydown",
+    value: function onkeydown() {
+      return {
+        contextmenu: function contextmenu(e) {
+          e.preventDefault();
+          console.log('右键菜单');
+        }
+      };
+    } // row 行 col 列
 
-  _createClass(Scroll, [{
+  }, {
     key: "componentDidMount",
     value: function componentDidMount() {
       var _this2 = this;
@@ -219,11 +331,11 @@ var Scroll = /*#__PURE__*/function (_Component) {
       });
       var dom = document.querySelector('#canvas_wrap');
       resizeObserver.observe(dom);
-      dom === null || dom === void 0 ? void 0 : dom.addEventListener(_tools.isFirefox ? 'DOMMouseScroll' : 'mousewheel', this.handleWheel); // dom?.addEventListener('mousemove', this.handleMousemove, true);
+      dom === null || dom === void 0 ? void 0 : dom.addEventListener(_tools.isFirefox ? 'DOMMouseScroll' : 'mousewheel', this.handleWheel);
     }
   }, {
-    key: "componentWillReceiveProps",
-    value: function componentWillReceiveProps(nextProps) {
+    key: "UNSAFE_componentWillReceiveProps",
+    value: function UNSAFE_componentWillReceiveProps(nextProps) {
       var _this3 = this;
 
       this.setState({
@@ -240,10 +352,9 @@ var Scroll = /*#__PURE__*/function (_Component) {
       e.preventDefault();
       var deltaX = e.deltaX,
           deltaY = e.deltaY;
-      var _this$state3 = this.state,
-          scrollTop = _this$state3.scrollTop,
-          scrollLeft = _this$state3.scrollLeft,
-          rowWidth = _this$state3.rowWidth;
+      var _this$state2 = this.state,
+          scrollTop = _this$state2.scrollTop,
+          scrollLeft = _this$state2.scrollLeft;
       var _deltaX = 0;
       var _deltaY = 0;
 
@@ -272,14 +383,16 @@ var Scroll = /*#__PURE__*/function (_Component) {
   }, {
     key: "paintInit",
     value: function paintInit(dom) {
-      dom = dom || document.querySelector('#canvas_wrap');
-      var endColIndex = this.standard.endColIndex;
-      endColIndex && this.setState({
-        rowWidth: this.defaultConfig.rowWidth + (endColIndex.toString().length - 1) * 10
+      var _dom = dom || document.querySelector('#canvas_wrap');
+
+      var endRowIndex = this.standard.endRowIndex; // 序号的大小影响行头的宽度
+
+      endRowIndex && this.setState({
+        rowWidth: this.defaultConfig.rowWidth + (endRowIndex.toString().length - 1) * 10
       });
 
-      if (dom) {
-        var _dom$getBoundingClien = dom.getBoundingClientRect(),
+      if (_dom) {
+        var _dom$getBoundingClien = _dom.getBoundingClientRect(),
             width = _dom$getBoundingClien.width,
             height = _dom$getBoundingClien.height;
 
@@ -291,7 +404,11 @@ var Scroll = /*#__PURE__*/function (_Component) {
     value: function canvasInit(w, h) {
       var rowColCanvas = document.getElementById('row-col-canvas');
       var contentCanvas = document.getElementById('content-canvas');
-      if (!rowColCanvas || !contentCanvas) return;
+
+      if (!rowColCanvas || !contentCanvas) {
+        return;
+      }
+
       rowColCanvas.width = w * this.ratio; // 实际渲染像素
 
       rowColCanvas.height = h * this.ratio; // 实际渲染像素
@@ -308,53 +425,52 @@ var Scroll = /*#__PURE__*/function (_Component) {
       contentCanvas.style.height = "".concat(h, "px");
       var cctx = contentCanvas.getContext('2d');
       cctx.setTransform(this.ratio, 0, 0, this.ratio, 0, 0);
-      var _this$state4 = this.state,
-          scrollLeft = _this$state4.scrollLeft,
-          scrollTop = _this$state4.scrollTop; // 寻找开始位置处是第几列
+      var _this$state3 = this.state,
+          scrollLeft = _this$state3.scrollLeft,
+          scrollTop = _this$state3.scrollTop; // 寻找开始位置处是第几列
       // 宽度累加 与滚动条的偏移量对比 寻找从第几列开始绘制
 
-      var startRowIndex = 0;
-      var offsetX = this.colWidth(startRowIndex);
+      var startColIndex = 0;
+      var offsetX = this.colWidth(startColIndex);
 
       while (offsetX < scrollLeft) {
-        startRowIndex++;
-        offsetX += this.colWidth(startRowIndex);
+        startColIndex++;
+        offsetX += this.colWidth(startColIndex);
       } // 寻找结束位置处是第几列
       // 宽度累加 寻找可视区域需要绘制到多少列 默认最初的宽度是第一列显示出来的宽度
 
 
-      var row_acc = offsetX - scrollLeft;
-      var endRowIndex = startRowIndex;
+      var col_acc = offsetX - scrollLeft;
+      var endColIndex = startColIndex;
 
-      while (row_acc < w) {
-        endRowIndex++;
-        row_acc += this.colWidth(endRowIndex);
+      while (col_acc < w) {
+        endColIndex++;
+        col_acc += this.colWidth(endColIndex);
       } // 可视区域第一列绘制的起始位置 列偏移量
 
 
-      var cellOffsetX = offsetX - scrollLeft - this.colWidth(startRowIndex);
-      ; // 寻找开始位置处是第几行
+      var cellOffsetX = offsetX - scrollLeft - this.colWidth(startColIndex); // 寻找开始位置处是第几行
 
-      var startColIndex = 0;
-      var offsetY = this.rowHeight(startColIndex);
+      var startRowIndex = 0;
+      var offsetY = this.rowHeight(startRowIndex);
 
       while (offsetY < scrollTop) {
-        startColIndex++;
-        offsetY += this.rowHeight(startColIndex);
+        startRowIndex++;
+        offsetY += this.rowHeight(startRowIndex);
       } // 寻找结束位置处是第几行
       // 高度累加 寻找可视区域需要绘制到多少行 默认最初的宽度是第一行显示出来的高度
 
 
-      var col_acc = offsetY - scrollTop;
-      var endColIndex = startColIndex;
+      var row_acc = offsetY - scrollTop;
+      var endRowIndex = startRowIndex;
 
-      while (col_acc < h) {
-        endColIndex++;
-        col_acc += this.rowHeight(endColIndex);
+      while (row_acc < h) {
+        endRowIndex++;
+        row_acc += this.rowHeight(endRowIndex);
       } // 可视区域第一行绘制的起始位置 行偏移量
 
 
-      var cellOffsetY = offsetY - scrollTop - this.rowHeight(endColIndex);
+      var cellOffsetY = offsetY - scrollTop - this.rowHeight(endRowIndex);
       this.standard = {
         cellOffsetX: cellOffsetX,
         startRowIndex: startRowIndex,
@@ -366,12 +482,9 @@ var Scroll = /*#__PURE__*/function (_Component) {
         height: h
       }; // 列头 从x位置开始绘制 startRowIndex列 到 startRowIndex + 20列
 
-      this.paintRow(rcctx, cellOffsetX, startRowIndex, endRowIndex, w); // 行头
+      this.paintCol(rcctx, cellOffsetX, startColIndex, endColIndex, w); // 行头
 
-      this.paintCol(rcctx, cellOffsetY, startColIndex, endColIndex, h); // 竖线
-      // this.paintVerticalLine(cctx, cellOffsetX, startRowIndex, endRowIndex, h);
-      // // 水平线
-      // this.paintHorizontalLine(cctx, cellOffsetY, startColIndex, endColIndex, w);
+      this.paintRow(rcctx, cellOffsetY, startRowIndex, endRowIndex, h); // 单元格
 
       this.paintCells({
         ctx: cctx,
@@ -386,7 +499,7 @@ var Scroll = /*#__PURE__*/function (_Component) {
       });
     }
   }, {
-    key: "paintRow",
+    key: "paintCol",
     value:
     /**
      * 绘制可视区域的列头
@@ -395,15 +508,14 @@ var Scroll = /*#__PURE__*/function (_Component) {
      * @param {*} start 起始单元格的索引
      * @param {*} end 结束单元格的索引
      */
-    function paintRow(ctx, x, start, end, w) {
-      var _this$state5 = this.state,
-          rowWidth = _this$state5.rowWidth,
-          widths = _this$state5.widths,
-          cellWidth = _this$state5.cellWidth,
-          colHeight = _this$state5.colHeight; // 先擦除后绘制
+    function paintCol(ctx, x, start, end, w) {
+      var _this$state4 = this.state,
+          rowWidth = _this$state4.rowWidth,
+          colHeight = _this$state4.colHeight,
+          focusCells = _this$state4.focusCells; // 先擦除后绘制
 
-      ctx.clearRect(0, 0, w, colHeight);
-      var startLeft = x + rowWidth;
+      ctx.clearRect(0, 0, w, colHeight - 1);
+      var startLeft = x + rowWidth; // console.log('focusCells', focusCells)
 
       for (var index = start; index <= end; index++) {
         // 当前单元格宽度
@@ -414,25 +526,38 @@ var Scroll = /*#__PURE__*/function (_Component) {
         startLeft += width;
         ctx.beginPath(); // 矩形填充
 
-        ctx.fillStyle = '#f5f5f5';
-        ctx.fillRect(startPointX, 0, width, colHeight); // 矩形边框
+        (0, _tools.fillRect)({
+          context: ctx,
+          fillStyle: '#f5f5f5',
+          x: startPointX,
+          y: 0,
+          width: width,
+          height: colHeight
+        }); // 矩形边框
 
-        ctx.lineWidth = 1;
-        ctx.strokeStyle = '#cecece';
-        ctx.strokeRect(startPointX, 0, width, colHeight); // 文本
+        (0, _tools.strokeRect)({
+          context: ctx,
+          strokeStyle: '#cecece',
+          x: startPointX,
+          y: 0,
+          width: width,
+          height: colHeight
+        }); // 文本
 
-        ctx.globalCompositeOperation = 'source-over';
-        ctx.font = '16px PingFang SC';
-        ctx.fillStyle = '#333';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle'; // 绘制列名
-
-        ctx.fillText((0, _tools.colTitle)(index + 1), startPointX + width / 2, colHeight / 2);
+        (0, _tools.fillText)({
+          context: ctx,
+          font: '16px PingFang SC',
+          fillStyle: '#333',
+          textAlign: 'center',
+          text: (0, _tools.colTitle)(index + 1),
+          x: startPointX + width / 2,
+          y: colHeight / 2
+        });
         ctx.stroke();
         ctx.closePath();
       }
 
-      ctx.clearRect(0, 0, rowWidth - 0.5, colHeight + 1);
+      ctx.clearRect(0, 0, rowWidth, colHeight);
     }
     /**
      * 绘制可视区域的行头
@@ -444,13 +569,13 @@ var Scroll = /*#__PURE__*/function (_Component) {
      */
 
   }, {
-    key: "paintCol",
-    value: function paintCol(ctx, y, start, end, h) {
-      var _this$state6 = this.state,
-          rowWidth = _this$state6.rowWidth,
-          colHeight = _this$state6.colHeight; // 先擦除后绘制
+    key: "paintRow",
+    value: function paintRow(ctx, y, start, end, h) {
+      var _this$state5 = this.state,
+          rowWidth = _this$state5.rowWidth,
+          colHeight = _this$state5.colHeight; // 先擦除后绘制
 
-      ctx.clearRect(0, 0, rowWidth, h);
+      ctx.clearRect(0, 0, rowWidth - 1, h);
       var startTop = y + colHeight;
 
       for (var index = start; index <= end; index++) {
@@ -462,92 +587,162 @@ var Scroll = /*#__PURE__*/function (_Component) {
         startTop += height;
         ctx.beginPath(); // 矩形填充
 
-        ctx.fillStyle = '#f5f5f5';
-        ctx.fillRect(0, startPointY, rowWidth, height); // 矩形边框
+        (0, _tools.fillRect)({
+          context: ctx,
+          fillStyle: '#f5f5f5',
+          x: 0,
+          y: startPointY,
+          width: rowWidth,
+          height: height
+        }); // 矩形边框
 
-        ctx.lineWidth = 1;
-        ctx.strokeStyle = '#cecece';
-        ctx.strokeRect(0, startPointY, rowWidth, height); // 文本
+        (0, _tools.strokeRect)({
+          context: ctx,
+          strokeStyle: '#cecece',
+          x: 0,
+          y: startPointY,
+          width: rowWidth,
+          height: height
+        }); // 文本
 
-        ctx.globalCompositeOperation = 'source-over';
-        ctx.font = '16px PingFang SC';
-        ctx.fillStyle = '#333';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle'; // 绘制列名
-
-        ctx.fillText(index + 1, rowWidth / 2, startPointY + height / 2);
+        (0, _tools.fillText)({
+          context: ctx,
+          font: '16px PingFang SC',
+          fillStyle: '#333',
+          textAlign: 'center',
+          text: index + 1,
+          x: rowWidth / 2,
+          y: startPointY + height / 2
+        });
         ctx.stroke();
         ctx.closePath();
-        ctx.clearRect(0, 0, rowWidth - 0.5, colHeight + 1);
+        ctx.clearRect(0, 0, rowWidth, colHeight);
       }
     }
   }, {
-    key: "paintVerticalLine",
-    value: function paintVerticalLine(ctx, x, start, end, h) {
-      var _this$state7 = this.state,
-          rowWidth = _this$state7.rowWidth,
-          widths = _this$state7.widths,
-          cellWidth = _this$state7.cellWidth,
-          colHeight = _this$state7.colHeight;
-      var startLeft = x + rowWidth; // 竖线
-
-      for (var index = start; index <= end; index++) {
-        // 当前单元格宽度
-        var width = this.colWidth(index); // 单元格开始位置
-
-        var startPointX = startLeft - 0.5; // 下一个单元格开始位置
-
-        startLeft += width;
-        (0, _tools.drawLine)({
-          context: ctx,
-          x1: startPointX,
-          y1: colHeight,
-          x2: startPointX,
-          y2: h
-        });
-      }
+    key: "handleMouseDown",
+    value: function handleMouseDown() {
+      this.mouseDownSign = true;
     }
   }, {
-    key: "paintHorizontalLine",
-    value: function paintHorizontalLine(ctx, y, start, end, w) {
-      var _this$state8 = this.state,
-          rowWidth = _this$state8.rowWidth,
-          colHeight = _this$state8.colHeight;
-      var startTop = y + colHeight; // 竖线
+    key: "handleMouseLeave",
+    value: function handleMouseLeave() {
+      this.mouseDownSign = false;
+    }
+  }, {
+    key: "handleMouseUp",
+    value: function handleMouseUp(e) {
+      var _this5 = this;
 
-      for (var index = start; index <= end; index++) {
-        // 当前单元格宽度
-        var height = this.rowHeight(index); // 单元格开始位置
+      this.mouseDownSign = false;
 
-        var startPointY = startTop - 0.5; // 下一个单元格开始位置
+      var _this$position = this.position(e),
+          x = _this$position.x,
+          y = _this$position.y;
 
-        startTop += height;
-        (0, _tools.drawLine)({
-          context: ctx,
-          x1: rowWidth,
-          y1: startPointY,
-          x2: w,
-          y2: startPointY
-        });
+      var start = null;
+      var end = null;
+
+      if (x < 0 && y >= 0) {
+        start = {
+          x: 0,
+          y: y
+        };
+        end = {
+          x: Number.MAX_VALUE,
+          y: y
+        };
+      } else if (x >= 0 && y < 0) {
+        start = {
+          x: x,
+          y: 0
+        };
+        end = {
+          x: x,
+          y: Number.MAX_VALUE
+        };
+      } else if (x < 0 && y < 0) {
+        start = {
+          x: 0,
+          y: 0
+        };
+        end = {
+          x: Number.MAX_VALUE,
+          y: Number.MAX_VALUE
+        };
+      } else {
+        start = {
+          x: x,
+          y: y
+        };
+        end = {
+          x: x,
+          y: y
+        };
       }
+
+      this.setState({
+        focusCells: (0, _tools.handleFocusCells)(start, end)
+      }, function () {
+        _this5.paintInit();
+      });
+    }
+  }, {
+    key: "handleMouseMove",
+    value: function handleMouseMove(e) {
+      var _this6 = this;
+
+      if (!this.mouseDownSign || timer) return;
+      var pageX = e.pageX,
+          pageY = e.pageY,
+          currentTarget = e.currentTarget;
+      timer = setTimeout(function () {
+        timer = null;
+
+        var _this6$position = _this6.position({
+          pageX: pageX,
+          pageY: pageY,
+          currentTarget: currentTarget
+        }),
+            x = _this6$position.x,
+            y = _this6$position.y;
+
+        var focusCells = _objectSpread({}, _this6.state.focusCells);
+
+        if (focusCells.start) {
+          focusCells.end = {
+            x: x,
+            y: y
+          };
+        } else {
+          focusCells.start = {
+            x: x,
+            y: y
+          };
+        }
+
+        _this6.setState({
+          focusCells: (0, _tools.handleFocusCells)(focusCells.start, focusCells.end)
+        }, function () {
+          _this6.paintInit();
+        });
+      }, 100);
     }
   }, {
     key: "position",
     value: function position(e) {
-      var pageX = e.pageX,
-          pageY = e.pageY,
+      var clientX = e.clientX,
+          clientY = e.clientY,
           currentTarget = e.currentTarget;
-      var offsetLeft = pageX - currentTarget.offsetLeft;
-      var offsetTop = pageY - currentTarget.offsetTop;
-      var _this$state9 = this.state,
-          colHeight = _this$state9.colHeight,
-          rowWidth = _this$state9.rowWidth,
-          scrollTop = _this$state9.scrollTop,
-          scrollLeft = _this$state9.scrollLeft;
-      var x = null,
-          y = null,
-          row = null,
-          col = null;
+      var offsetLeft = clientX - (currentTarget.getBoundingClientRect().left - document.documentElement.clientLeft);
+      var offsetTop = clientY - (currentTarget.getBoundingClientRect().top - document.documentElement.clientTop);
+      var _this$state6 = this.state,
+          colHeight = _this$state6.colHeight,
+          rowWidth = _this$state6.rowWidth;
+      var x = null;
+      var y = null;
+      var row = null;
+      var col = null;
       var _this$standard = this.standard,
           cellOffsetX = _this$standard.cellOffsetX,
           cellOffsetY = _this$standard.cellOffsetY,
@@ -558,7 +753,7 @@ var Scroll = /*#__PURE__*/function (_Component) {
         y = -1;
         row = -1;
       } else {
-        y = startColIndex;
+        y = startRowIndex;
         var col_acc = colHeight + cellOffsetY + this.rowHeight(y);
 
         while (col_acc <= offsetTop) {
@@ -573,7 +768,7 @@ var Scroll = /*#__PURE__*/function (_Component) {
         x = -1;
         col = -1;
       } else {
-        x = startRowIndex;
+        x = startColIndex;
         var row_acc = rowWidth + cellOffsetX + this.colWidth(x);
 
         while (row_acc <= offsetLeft) {
@@ -594,62 +789,42 @@ var Scroll = /*#__PURE__*/function (_Component) {
         offsetTop: offsetTop
       };
     }
-    /**
-     * @param {*} i 第几列
-     * @returns 列宽
-     */
-
-  }, {
-    key: "colWidth",
-    value: function colWidth(i) {
-      var _this$state10 = this.state,
-          widths = _this$state10.widths,
-          cellWidth = _this$state10.cellWidth;
-      return widths[i] || cellWidth;
-    }
-    /**
-     * @param {*} i 第几行
-     * @returns 行高
-     */
-
-  }, {
-    key: "rowHeight",
-    value: function rowHeight(i) {
-      var _this$state11 = this.state,
-          heights = _this$state11.heights,
-          cellHeight = _this$state11.cellHeight;
-      return heights[i] || cellHeight;
-    }
   }, {
     key: "render",
     value: function render() {
-      var _this$state12 = this.state,
-          styles = _this$state12.styles,
-          focusCellStyle = _this$state12.focusCellStyle,
-          canvasStyle = _this$state12.canvasStyle,
-          scrollLeft = _this$state12.scrollLeft,
-          scrollTop = _this$state12.scrollTop,
-          pageX = _this$state12.pageX,
-          pageY = _this$state12.pageY;
+      var _this7 = this;
+
+      var styles = this.state.styles;
       var _this$props = this.props,
           style = _this$props.style,
           className = _this$props.className;
 
       var _className = (0, _classnames["default"])('excel-wrap', className);
 
-      var _style = _objectSpread(_objectSpread({}, style), styles);
-
-      var _focusCellStyle = _objectSpread(_objectSpread({}, focusCellStyle), {}, {
-        top: focusCellStyle.top - scrollTop,
-        left: focusCellStyle.left - scrollLeft
-      }); // console.log(pageX, pageY)
+      var _style = _objectSpread(_objectSpread({}, style), styles); // const _focusCellStyle = {
+      //   ...focusCellStyle,
+      //   top: focusCellStyle.top - scrollTop,
+      //   left: focusCellStyle.left - scrollLeft
+      // }
 
 
       return /*#__PURE__*/_react["default"].createElement("div", {
-        className: _className,
-        style: _style,
         id: "canvas_wrap",
-        onClick: this.handleCanvasClick
+        style: _style,
+        className: _className // onClick={(e) => this.handleMouseUp(e)}
+        ,
+        onMouseDown: function onMouseDown(e) {
+          return _this7.handleMouseDown(e);
+        },
+        onMouseUp: function onMouseUp(e) {
+          return _this7.handleMouseUp(e);
+        },
+        onMouseMove: function onMouseMove(e) {
+          return _this7.handleMouseMove(e);
+        },
+        onMouseLeave: function onMouseLeave(e) {
+          return _this7.handleMouseLeave(e);
+        }
       }, /*#__PURE__*/_react["default"].createElement("canvas", {
         id: "row-col-canvas"
       }), /*#__PURE__*/_react["default"].createElement("canvas", {
@@ -658,7 +833,6 @@ var Scroll = /*#__PURE__*/function (_Component) {
     }
   }]);
 
-  return Scroll;
-}(_react.Component);
-
-exports["default"] = Scroll;
+  return Excel;
+}(_react.Component)) || _class);
+exports["default"] = Excel;

@@ -39,23 +39,23 @@ export default class ExcelCom extends React.Component {
 		}
 		return(
 			<>
-			<div>
-        <Button onClick={() => this.setExpression('A')}>A</Button>
-        <Button onClick={() => this.setExpression('B')}>B</Button>
-        <Button onClick={() => this.setExpression('C')}>C</Button>
-      </div>
+				<div>
+					<Button onClick={() => this.setExpression('A')}>A</Button>
+					<Button onClick={() => this.setExpression('B')}>B</Button>
+					<Button onClick={() => this.setExpression('C')}>C</Button>
+				</div>
 
-			<Switch expression={expression}>
-        <div case='A'>A</div>
-        <div case='B'>B</div>
-        <div case='C'>C</div>
-      </Switch>
+				<Switch expression={expression}>
+					<div case='A'>A</div>
+					<div case='B'>B</div>
+					<div case='C'>C</div>
+				</Switch>
 
-      <div style={styles[expression]}>
-        <Excel dataSource={dataSource} style={{background: 'red'}} cellWidth={100} cellHeight={30} />
-      </div>
+				<div style={styles[expression]}>
+					<Excel dataSource={dataSource} cellWidth={100} cellHeight={30} />
+				</div>
 
-      <div style={{height: 300}}></div>
+				<div style={{height: 300}}></div>
 			</>
 		)
 	}

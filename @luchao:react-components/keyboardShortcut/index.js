@@ -192,6 +192,8 @@ var keyboardShortcut = function keyboardShortcut(desc) {
           // 装饰器包裹的组件dom
           var wrapDom = _reactDom["default"].findDOMNode(this.__wrappedInstance);
 
+          if (!wrapDom) return;
+
           var _this$findFunction2 = this.findFunction(),
               click = _this$findFunction2.click,
               clickOutside = _this$findFunction2.clickOutside,
@@ -217,7 +219,7 @@ var keyboardShortcut = function keyboardShortcut(desc) {
 
           var wrapDom = _reactDom["default"].findDOMNode(this.__wrappedInstance);
 
-          if (!wrapDom.contains(this.eventTarget)) return;
+          if (!wrapDom || !wrapDom.contains(this.eventTarget)) return;
           this[type](e);
         }
       }, {

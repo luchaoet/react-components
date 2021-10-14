@@ -135,6 +135,8 @@ const keyboardShortcut = (desc) => {
         // 处理clickOutside事件
         // 装饰器包裹的组件dom
         const wrapDom = ReactDOM.findDOMNode(this.__wrappedInstance);
+        if(!wrapDom)return;
+
         const { click, clickOutside, onceClickOutside } = this.findFunction();
 
         if (wrapDom.contains(e?.target)) {
@@ -151,7 +153,7 @@ const keyboardShortcut = (desc) => {
       copypastecut(e) {
         const { type } = e || {};
         const wrapDom = ReactDOM.findDOMNode(this.__wrappedInstance);
-        if (!wrapDom.contains(this.eventTarget)) return;
+        if (!wrapDom || !wrapDom.contains(this.eventTarget)) return;
         this[type](e);
       }
 

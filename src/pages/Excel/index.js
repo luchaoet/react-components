@@ -9,13 +9,7 @@ export default class ExcelCom extends React.Component {
 		super(props);
 		this.state = {
 			expression: 'A',
-			dataSource: [
-				['dataSourcedataSourcedataSource', 'B1', 'C1', 'D1', 'E1'],
-				['A2', 'B2', 'C2', 'D2', 'E2'],
-				['A3', 'B3', 'C3', 'D3', 'E3'],
-				['A4', 'B4', 'C4', 'D4', 'E4'],
-				['A5', 'B5', 'C5', 'D5', 'E5'],
-			  ],
+			dataSource: [],
 		}
 	}
 
@@ -23,7 +17,7 @@ export default class ExcelCom extends React.Component {
 		this.setState({
 			expression: v,
 			dataSource: [
-				['A1']
+				[{format: 'string', value: 'A1'}]
 			]
 		})
 	}
@@ -43,6 +37,11 @@ export default class ExcelCom extends React.Component {
 					<Button onClick={() => this.setExpression('A')}>A</Button>
 					<Button onClick={() => this.setExpression('B')}>B</Button>
 					<Button onClick={() => this.setExpression('C')}>C</Button>
+					<Button onClick={() => {
+						this.excelRef.__wrappedInstance.setState({
+							styles: {cursor: 'pointer'}
+						})
+					}}>set</Button>
 				</div>
 
 				<Switch expression={expression}>
@@ -52,7 +51,9 @@ export default class ExcelCom extends React.Component {
 				</Switch>
 
 				<div style={styles[expression]}>
-					<Excel dataSource={dataSource} cellWidth={100} cellHeight={30} />
+					<Excel ref={(c) => {
+              this.excelRef = c;
+            }}  dataSource={dataSource} cellWidth={100} cellHeight={30} />
 				</div>
 
 				<div style={{height: 300}}></div>

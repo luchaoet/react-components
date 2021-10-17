@@ -167,6 +167,7 @@ const keyboardShortcut = (desc) => {
         e.clipboardData.setData('text', '');
       }
       paste(e) {
+        // console.log(event.clipboardData || event.originalEvent)
         // 剪贴板存在内容 默认粘贴内容
         // const str = e.clipboardData.getData('Text');
 				// 存在聚焦的元素 说明鼠标正在输入框中
@@ -201,10 +202,12 @@ const keyboardShortcut = (desc) => {
             };
           });
 
-          const { shiftKey, ctrlKey, key } = e;
+          const { shiftKey, ctrlKey, metaKey, key } = e;
+
           const targetKeys = compact([
             shiftKey && 'shift',
             ctrlKey && 'ctrl',
+            metaKey && 'command', // mac command键
             `${key}`.toLocaleLowerCase(),
           ]);
 

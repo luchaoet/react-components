@@ -236,6 +236,7 @@ var keyboardShortcut = function keyboardShortcut(desc) {
       }, {
         key: "paste",
         value: function paste(e) {
+          // console.log(event.clipboardData || event.originalEvent)
           // 剪贴板存在内容 默认粘贴内容
           // const str = e.clipboardData.getData('Text');
           // 存在聚焦的元素 说明鼠标正在输入框中
@@ -272,8 +273,10 @@ var keyboardShortcut = function keyboardShortcut(desc) {
             });
             var shiftKey = e.shiftKey,
                 ctrlKey = e.ctrlKey,
+                metaKey = e.metaKey,
                 key = e.key;
-            var targetKeys = (0, _lodash.compact)([shiftKey && 'shift', ctrlKey && 'ctrl', "".concat(key).toLocaleLowerCase()]);
+            var targetKeys = (0, _lodash.compact)([shiftKey && 'shift', ctrlKey && 'ctrl', metaKey && 'command', // mac command键
+            "".concat(key).toLocaleLowerCase()]);
             var fun = keys.find(function (item) {
               return arrayEquals(item.keys, targetKeys);
             });

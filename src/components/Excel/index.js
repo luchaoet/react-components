@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import { 
-  colTitle, 
   isFirefox, 
   fillRect, 
   fillText, 
@@ -10,6 +9,8 @@ import {
   rowHeight,
   drawLine,
   handleFocusCells,
+  tableToArray,
+  base26,
 } from './tools';
 import keyboardShortcut from '../keyboardShortcut'
 import './index.scss';
@@ -41,9 +42,9 @@ export default class Excel extends Component {
       // 行头宽度
       rowWidth: this.defaultConfig.rowWidth,
       widths: {
-        0: 200,
-        1: 100,
-        3: 90
+        'A': 200,
+        'B': 100,
+        'C': 90
       },
       heights: {},
       styles: {},
@@ -61,10 +62,7 @@ export default class Excel extends Component {
         start: null,
         end: null
       },
-      canvasStyle: {},
       dataSource: props.dataSource,
-      pageX: -100, 
-      pageY: 100,
     };
   }
 
@@ -73,12 +71,91 @@ export default class Excel extends Component {
       contextmenu: (e) => {
         e.preventDefault();
         console.log('右键菜单')
+      },
+      copy: (e) => {
+        const focusCells = this.state.focusCells;
+        const { start, end } = handleFocusCells(focusCells.start, focusCells.end);
+        console.log(start, end)
+      },
+      paste: (e) => {
+        if (e.clipboardData || e.originalEvent) {
+          e.preventDefault();
+          const clipboardData = (e.clipboardData || window.clipboardData);
+          // 检查是否复制了excel内容 
+          const html = clipboardData.getData('text/html');
+          let result = tableToArray(html);
+          // 复制的字符串内容
+          if (result.length === 0) {
+            result = [
+              [{format: 'string', value: clipboardData.getData('text')}]
+            ]
+          }
+          const focusCells = this.state.focusCells;
+          const { start } = handleFocusCells(focusCells.start, focusCells.end);
+
+          if (start && start.x > 0 && start.y > 0) {
+            const cell = `${base26.column(start.x)}${start.y}`;
+            this.excelInsetContent(cell, result)
+          }
+        }
       }
     }
   }
 
+  // ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ excel 操作方法 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+  /**
+   * 覆盖内容
+   * @param {*} startCell 开始单元格
+   * @param {*} content 内容 [[{}, {}], [{}, {}], [{}, {}]]
+   */
+  excelInsetContent(startCell, content) {
+    if (startCell) {
+      const [_, col, row] = startCell.match(/([A-Z]+)([0-9]+)/);
+      const _col = base26.index(col) - 1;
+      const _row = Number(row) - 1;
+
+      const dataSource = [...this.state.dataSource];
+
+      content.forEach((rowContent, rowIndex) => {
+        if (rowContent.length === 0) {
+          // 空行使用空数组占位
+          return dataSource[rowIndex + _row] = [];
+        }
+        rowContent.forEach((colCotent, colIndex) => {
+          if(!dataSource[rowIndex + _row]) dataSource[rowIndex + _row] = []
+          dataSource[rowIndex + _row][colIndex + _col] = colCotent;
+        })
+      })
+      
+      this.onSetDataSourceAndPaintInit(dataSource)
+    }
+  }
+  /**
+   * 获取excel数据
+   */
+  getExcelData() {
+    const dataSource = [...this.state.dataSource];
+    for(let i = 0,len = dataSource.length; i < len; i++) {
+      dataSource[i] = dataSource[i] || [];
+      for(let j = 0, l = dataSource[i].length; j < l; j++) {
+        dataSource[i][j] = dataSource[i][j] || null;
+      }
+    }
+    return dataSource;
+  }
+
+  /**
+   * 聚焦单元格
+   * @param {*} cell 
+   */
+  focusCell(cell) {
+    console.log(cell)
+  }
+  // ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑ excel 操作方法 ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
+
   // row 行 col 列
   componentDidMount() {
+    window.excel = this;
     const resizeObserver = new ResizeObserver((entries) => {
       for (const entry of entries) {
         this.paintInit(entry.target);
@@ -90,12 +167,15 @@ export default class Excel extends Component {
     dom?.addEventListener(isFirefox ? 'DOMMouseScroll' : 'mousewheel', this.handleWheel);
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    this.setState({
-      dataSource: nextProps.dataSource
-    }, () => {
+  // 修改 dataSource,并重回canvas
+  onSetDataSourceAndPaintInit(dataSource, other = {}) {
+    this.setState({ dataSource, ...other }, () => {
       this.paintInit();
     })
+  }
+
+  UNSAFE_componentWillReceiveProps(nextProps) {
+    this.onSetDataSourceAndPaintInit(nextProps.dataSource)
   }
 
   handleWheel(e) {
@@ -166,7 +246,7 @@ export default class Excel extends Component {
 
     // 寻找开始位置处是第几列
     // 宽度累加 与滚动条的偏移量对比 寻找从第几列开始绘制
-    let startColIndex = 0;
+    let startColIndex = 1;
     let offsetX = this.colWidth(startColIndex);
     while (offsetX < scrollLeft) {
       startColIndex++;
@@ -184,7 +264,7 @@ export default class Excel extends Component {
     const cellOffsetX = offsetX - scrollLeft - this.colWidth(startColIndex);
 
     // 寻找开始位置处是第几行
-    let startRowIndex = 0;
+    let startRowIndex = 1;
     let offsetY = this.rowHeight(startRowIndex);
     while (offsetY < scrollTop) {
       startRowIndex++;
@@ -229,15 +309,39 @@ export default class Excel extends Component {
       width: w, 
       height: h
     });
+    // 左上角
+    this.paintTriangle(rcctx);
   }
 
+  // 左上角
+  paintTriangle(ctx) {
+    const { rowWidth, colHeight } = this.state;
+
+    // 矩形填充
+    fillRect({ context: ctx, fillStyle: '#fff', x: 0, y: 0, width: rowWidth + 1, height: colHeight + 1});
+
+    // 矩形边框
+    strokeRect({ context: ctx, strokeStyle: '#cecece', x: 0.5, y: 0, width: rowWidth - 0.5, height: colHeight - 0.5 });
+
+    ctx.fillStyle = "#dfdfdf";
+    ctx.moveTo(rowWidth - 2, 0.5);
+    ctx.lineTo(rowWidth - 2, colHeight - 2);
+    ctx.lineTo(0.5, colHeight - 2);
+    ctx.lineTo(rowWidth - 2, 0.5);
+    ctx.fill();
+  }
+
+  // 单元格区域
   paintCells = ({ctx, cellOffsetX, cellOffsetY, startRowIndex, endRowIndex, startColIndex, endColIndex, width, height}) => {
     const { rowWidth, colHeight, dataSource, focusCells } = this.state;
+    const {start, end} = handleFocusCells(focusCells.start, focusCells.end);
+
     let startTop = cellOffsetY + colHeight;
 
-    const { start, end } = focusCells;
-    const _start = start || {x: -1, y: -1};
-    const _end = end || {x: -1, y: -1};
+    const focusX = [start.x, end.x];
+    const focusY = [start.y, end.y];
+
+    const drawLineArray = [];
     
     for (let i = startRowIndex; i <= endRowIndex; i++) {
       // 当前单元格宽度
@@ -248,25 +352,40 @@ export default class Excel extends Component {
       startTop += h;
       
       let startLeft = cellOffsetX + rowWidth;
+
       for (let j = startColIndex; j <= endColIndex; j++) {
-        const text = dataSource?.[i]?.[j] || '';
+        // 单元格文本内容
+        const text = dataSource?.[i - 1]?.[j - 1]?.value || '';
+        
         const w = this.colWidth(j)
         // 单元格开始位置
         const startPointX = startLeft - 0.5;
         // 下一个单元格开始位置
         startLeft += w;
 
+        let fillStyle = null;
+        let strokeStyle = '#d4d4d4';
+        if (j === focusX[0] && i === focusY[0]) {
+          fillStyle = '#fff'
+        } else if (j >= focusX[0] && j <= focusX[1] && i >= focusY[0] && i <= focusY[1]) {
+          fillStyle = '#c6c6c6'
+          strokeStyle = '#a5a5a5';
+        } else {
+          fillStyle = '#fff'
+        }
+
         // 矩形填充
         fillRect({ 
           context: ctx, 
-          fillStyle: j === _start.x && i === _start.y ? '#fff' : '#faf8f8',
+          fillStyle,
           x: startPointX, 
           y: startPointY, 
           width: w, 
           height: h 
         });
+
         // 矩形边框
-        strokeRect({ context: ctx, strokeStyle: '#cecece', x: startPointX, y: startPointY, width: w, height: h });
+        strokeRect({ context: ctx, strokeStyle, x: startPointX, y: startPointY, width: w, height: h });
         
         // 文本
         fillText({
@@ -278,82 +397,62 @@ export default class Excel extends Component {
           x: startPointX + 5,
           y: startPointY + h / 2
         });
-      }
-    }
-
-    startTop = cellOffsetY + colHeight;
-
-    for (let i = startRowIndex; i <= endRowIndex; i++) {
-      // 当前单元格宽度
-      const h = this.rowHeight(i);
-      // 单元格开始位置
-      const startPointY = startTop - 0.5;
-      // 下一个单元格开始位置
-      startTop += h;
-      
-      let startLeft = cellOffsetX + rowWidth;
-      for (let j = startColIndex; j <= endColIndex; j++) {
-        const w = this.colWidth(j)
-        // 单元格开始位置
-        const startPointX = startLeft - 0.5;
-        // 下一个单元格开始位置
-        startLeft += w;
 
         // 左边线
-        if (j === _start.x && i >= _start.y && i <= _end.y) {
-          drawLine({
-            context: ctx, 
+        if (j === start.x && i >= start.y && i <= end.y) {
+          drawLineArray.push({ 
             x1: startPointX, 
             y1: startPointY, 
             x2: startPointX, 
-            y2: startPointY + h, 
-            lineWidth: 2, 
-            strokeStyle: '#227346'
+            y2: startPointY + h,
           })
         }
+
         // 上边线
-        if (i === _start.y && j >= _start.x && j <= _end.x) {
-          drawLine({
-            context: ctx, 
+        if (i === start.y && j >= start.x && j <= end.x) {
+          drawLineArray.push({
             x1: startPointX, 
             y1: startPointY, 
             x2: startPointX + w, 
             y2: startPointY, 
-            lineWidth: 2, 
-            strokeStyle: '#227346'
           })
         }
+
         // 右边线
-        if (j === _end.x && i >= _start.y && i <= _end.y) {
-          drawLine({
-            context: ctx, 
+        if (j === end.x && i >= start.y && i <= end.y) {
+          drawLineArray.push({
             x1: startPointX + w, 
             y1: startPointY, 
             x2: startPointX + w, 
             y2: startPointY + h, 
-            lineWidth: 2, 
-            strokeStyle: '#227346'
-          })
+          });
         }
 
         // 下边线
-        if (i === _end.y && j >= _start.x && j <= _end.x) {
-          drawLine({
-            context: ctx, 
+        if (i === end.y && j >= start.x && j <= end.x) {
+          drawLineArray.push({
             x1: startPointX, 
             y1: startPointY + h, 
             x2: startPointX + w, 
             y2: startPointY + h, 
-            lineWidth: 2, 
-            strokeStyle: '#227346'
-          })
+          });
         }
       }
     }
 
+    // 单元格选中
+    drawLineArray.forEach(item => {
+      drawLine({
+        ...item,
+        context: ctx, 
+        lineWidth: 2,
+        strokeStyle: '#217346' 
+      });
+    })
+
     // 单元格canvas清除表头的区域
-    ctx.clearRect(0, 0, rowWidth + 0.5, height);
-    ctx.clearRect(0, 0, width, colHeight + 0.5);
+    ctx.clearRect(0, 0, rowWidth + 1, height);
+    ctx.clearRect(0, 0, width, colHeight + 1);
   }
 
   /**
@@ -371,7 +470,12 @@ export default class Excel extends Component {
 
     let startLeft = x + rowWidth;
 
-    // console.log('focusCells', focusCells)
+    let focusX = null;
+    if (focusCells.start && focusCells.end) {
+      focusX = [focusCells.start.x, focusCells.end.x].bubbleSort();
+    }
+
+    const drawLineArray = [];
 
     for (let index = start; index <= end; index++) {
       // 当前单元格宽度
@@ -382,24 +486,62 @@ export default class Excel extends Component {
       startLeft += width;
       
       ctx.beginPath();
+
+      let fillStyle = null;
+      let color = null;
+      let strokeStyle = null;
+
+      // 单元格选择的列标志线
+      if (focusX && index >= focusX[0] && index <= focusX[1]) {
+        fillStyle = '#d2d2d2';
+        color = '#2a694a';
+        strokeStyle = '#a6a6a6';
+
+        drawLineArray.push({
+          x1: startPointX, 
+          y1: colHeight - 0.5, 
+          x2: startPointX + width, 
+          y2: colHeight - 0.5, 
+        })
+      } else {
+        fillStyle = '#e6e6e6';
+        color = '#333';
+        strokeStyle = '#9e9e9e';
+      }
+
       // 矩形填充
-      fillRect({ context: ctx, fillStyle: '#f5f5f5', x: startPointX, y: 0, width, height: colHeight });
+      fillRect({ context: ctx, fillStyle, x: startPointX, y: 0, width, height: colHeight });
+      
       // 矩形边框
-      strokeRect({ context: ctx, strokeStyle: '#cecece', x: startPointX, y: 0, width, height: colHeight });
+      strokeRect({ context: ctx, strokeStyle, x: startPointX, y: 0, width, height: colHeight - 0.5 });
+
       // 文本
       fillText({
         context: ctx,
         font: '16px PingFang SC',
-        fillStyle: '#333',
-        textAlign: 'center',
-        text: colTitle(index + 1),
-        x: startPointX + width / 2,
+        fillStyle: color,
+        textAlign: 'left',
+        text: base26.column(index),
+        x: startPointX + 5,
         y: colHeight / 2
       });
       ctx.stroke();
       ctx.closePath();
     }
+
+    // 清除左上角
     ctx.clearRect(0, 0, rowWidth, colHeight);
+    
+    // 单元格选择的行标志线
+    drawLineArray.forEach(item => {
+      drawLine({
+        ...item,
+        context: ctx, 
+        lineWidth: 2,
+        strokeStyle: '#227346' 
+      });
+    })
+
   }
 
   /**
@@ -411,12 +553,19 @@ export default class Excel extends Component {
    * @param {*} h 
    */
   paintRow(ctx, y, start, end, h) {
-    const { rowWidth, colHeight } = this.state;
+    const { rowWidth, colHeight, focusCells } = this.state;
 
     // 先擦除后绘制
     ctx.clearRect(0, 0, rowWidth - 1, h);
 
     let startTop = y + colHeight;
+
+    let focusY = null;
+    if (focusCells.start && focusCells.end) {
+      focusY = [focusCells.start.y, focusCells.end.y].bubbleSort();
+    }
+
+    const drawLineArray = [];
 
     for (let index = start; index <= end; index++) {
       // 当前单元格宽度
@@ -428,24 +577,61 @@ export default class Excel extends Component {
       
       ctx.beginPath();
 
+      let fillStyle = null;
+      let color = null;
+      let strokeStyle = null;
+
+      // 单元格选择的行标志线
+      if (focusY && index >= focusY[0] && index <= focusY[1]) {
+        fillStyle = '#d2d2d2';
+        color = '#2a694a';
+        strokeStyle = '#a6a6a6';
+
+        drawLineArray.push({
+          x1: rowWidth, 
+          y1: startPointY, 
+          x2: rowWidth, 
+          y2: startPointY + height, 
+        })
+      } else {
+        fillStyle = '#e6e6e6';
+        color = '#333';
+        strokeStyle = '#9e9e9e';
+      }
+
       // 矩形填充
-      fillRect({ context: ctx, fillStyle: '#f5f5f5', x: 0, y: startPointY, width: rowWidth, height });
+      fillRect({ context: ctx, fillStyle, x: 0, y: startPointY, width: rowWidth, height });
+
       // 矩形边框
-      strokeRect({ context: ctx, strokeStyle: '#cecece', x: 0, y: startPointY, width: rowWidth, height });
+      strokeRect({ context: ctx, strokeStyle, x: 0, y: startPointY, width: rowWidth, height });
+
       // 文本
       fillText({
         context: ctx,
         font: '16px PingFang SC',
-        fillStyle: '#333',
+        fillStyle: color,
         textAlign: 'center',
-        text: index + 1,
+        text: index,
         x: rowWidth / 2,
         y: startPointY + height / 2
       });
       ctx.stroke();
       ctx.closePath();
-      ctx.clearRect(0, 0, rowWidth, colHeight);
     }
+
+    // 清除左上角
+    ctx.clearRect(0, 0, rowWidth, colHeight);
+
+    // 单元格选择的行标志线
+    drawLineArray.forEach(item => {
+      drawLine({
+        ...item,
+        context: ctx, 
+        lineWidth: 2,
+        strokeStyle: '#227346' 
+      });
+    })
+
   }
 
   setCursor = (type = 'pointer') => {
@@ -457,27 +643,25 @@ export default class Excel extends Component {
     }))
   };
 
-  handleMouseDown() {
+  handleMouseDown(e) {
+    // 忽略 鼠标右键触发的点击事件
+    if (e.button === 2) return;
+
     this.mouseDownSign = true;
-  }
 
-  handleMouseLeave() {
-    this.mouseDownSign = false;
-  }
-
-  handleMouseUp(e) {
-    this.mouseDownSign = false;
     const { x, y } = this.position(e);
+
     let start = null;
     let end = null;
-    if (x < 0 && y >= 0) {
-      start = {x: 0, y};
+
+    if (x <= 0 && y > 0) {
+      start = {x: 1, y};
       end = {x: Number.MAX_VALUE, y};
-    } else if (x >= 0 && y < 0) {
-      start = {x, y: 0};
+    } else if (x > 0 && y <= 0) {
+      start = {x, y: 1};
       end = {x, y: Number.MAX_VALUE};
-    } else if (x < 0 && y < 0) {
-      start = {x: 0, y: 0};
+    } else if (x === 0 && y === 0) {
+      start = {x: 1, y: 1};
       end = {x: Number.MAX_VALUE, y: Number.MAX_VALUE};
     } else {
       start = {x, y};
@@ -489,20 +673,40 @@ export default class Excel extends Component {
     }, () => { this.paintInit() });
   }
 
+  handleMouseLeave() {
+    this.mouseDownSign = false;
+  }
+
+  handleMouseUp() {
+    this.mouseDownSign = false;
+  }
+
   handleMouseMove(e) {
-    if (!this.mouseDownSign || timer) return;
-    const {pageX, pageY, currentTarget } = e;
+    const {clientX, clientY, currentTarget } = e;
+
+    if (timer) return;
+
     timer = setTimeout(() => {
       timer = null;
-      const {x, y} = this.position({pageX, pageY, currentTarget});
+      const position = this.position({clientX, clientY, currentTarget});
+      this.setState({mouseMovePosition: position}, () => {
+        this.handleMouseEvent(e, position)
+      });
+
+      if (!this.mouseDownSign) return;
+
+      const { x, y } = position;
+
       const focusCells = {...this.state.focusCells};
-      if (focusCells.start) {
-        focusCells.end = { x, y }
-      } else {
-        focusCells.start = { x, y }
-      }
-      this.setState({ focusCells: handleFocusCells(focusCells.start, focusCells.end) }, () => { this.paintInit() });
+
+      // 记录起始与结束单元格
+      focusCells[focusCells.start ? 'end' : 'start'] = {x, y};
+      this.setState({ focusCells }, () => { this.paintInit() });
     }, 100);
+  }
+
+  handleMouseEvent(e, position) {
+    // console.log(e, position)
   }
 
   position(e) {
@@ -513,13 +717,10 @@ export default class Excel extends Component {
 
     let x = null;
     let y = null;
-    let row = null;
-    let col = null;
     const { cellOffsetX, cellOffsetY, startRowIndex, startColIndex } = this.standard;
 
     if (offsetTop <= colHeight) {
-      y = -1;
-      row = -1;
+      y = 0;
     } else {
       y = startRowIndex;
       let col_acc = colHeight + cellOffsetY + this.rowHeight(y);
@@ -527,12 +728,10 @@ export default class Excel extends Component {
         y++;
         col_acc += this.rowHeight(y);
       }
-      row = y + 1;
     }
 
     if (offsetLeft <= rowWidth) {
-      x = -1;
-      col = -1;
+      x = 0;
     } else {
       x = startColIndex;
       let row_acc = rowWidth + cellOffsetX + this.colWidth(x);
@@ -540,15 +739,14 @@ export default class Excel extends Component {
         x++;
         row_acc += this.colWidth(x);
       }
-      col = x + 1;
     }
-    
+
     return { 
       x, 
       y, 
-      row, 
-      col: colTitle(col), 
-      cell: `${colTitle(col)}${row}`, 
+      row: y, 
+      col: base26.column(x), 
+      cell: `${base26.column(x)}${y}`, 
       offsetLeft,
       offsetTop 
     }
@@ -557,20 +755,10 @@ export default class Excel extends Component {
   render() {
     const { 
       styles, 
-      // focusCellStyle, 
-      // canvasStyle, 
-      // scrollLeft, 
-      // scrollTop, 
-      // pageX, pageY 
     } = this.state;
     const { style, className } = this.props;
     const _className = cx('excel-wrap', className);
     const _style = { ...style, ...styles };
-    // const _focusCellStyle = {
-    //   ...focusCellStyle,
-    //   top: focusCellStyle.top - scrollTop,
-    //   left: focusCellStyle.left - scrollLeft
-    // }
     return (
       <div 
         id="canvas_wrap" 

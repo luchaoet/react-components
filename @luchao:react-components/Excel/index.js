@@ -25,11 +25,27 @@ function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "functio
 
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
-function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e2) { throw _e2; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e3) { didErr = true; err = _e3; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 
 function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]; if (_i == null) return; var _arr = []; var _n = true; var _d = false; var _s, _e; try { for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
 
@@ -98,19 +114,15 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
           colHeight = _this$state.colHeight,
           dataSource = _this$state.dataSource,
           focusCells = _this$state.focusCells;
+
+      var _handleFocusCells = (0, _tools.handleFocusCells)(focusCells.start, focusCells.end),
+          start = _handleFocusCells.start,
+          end = _handleFocusCells.end;
+
       var startTop = cellOffsetY + colHeight;
-      var start = focusCells.start,
-          end = focusCells.end;
-
-      var _start = start || {
-        x: -1,
-        y: -1
-      };
-
-      var _end = end || {
-        x: -1,
-        y: -1
-      };
+      var focusX = [start.x, end.x];
+      var focusY = [start.y, end.y];
+      var drawLineArray = [];
 
       for (var i = startRowIndex; i <= endRowIndex; i++) {
         // 当前单元格宽度
@@ -123,20 +135,33 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
         var startLeft = cellOffsetX + rowWidth;
 
         for (var j = startColIndex; j <= endColIndex; j++) {
-          var _dataSource$i;
+          var _dataSource, _dataSource2;
 
-          var text = (dataSource === null || dataSource === void 0 ? void 0 : (_dataSource$i = dataSource[i]) === null || _dataSource$i === void 0 ? void 0 : _dataSource$i[j]) || '';
+          // 单元格文本内容
+          var text = (dataSource === null || dataSource === void 0 ? void 0 : (_dataSource = dataSource[i - 1]) === null || _dataSource === void 0 ? void 0 : (_dataSource2 = _dataSource[j - 1]) === null || _dataSource2 === void 0 ? void 0 : _dataSource2.value) || '';
 
           var w = _this.colWidth(j); // 单元格开始位置
 
 
           var startPointX = startLeft - 0.5; // 下一个单元格开始位置
 
-          startLeft += w; // 矩形填充
+          startLeft += w;
+          var fillStyle = null;
+          var strokeStyle = '#d4d4d4';
+
+          if (j === focusX[0] && i === focusY[0]) {
+            fillStyle = '#fff';
+          } else if (j >= focusX[0] && j <= focusX[1] && i >= focusY[0] && i <= focusY[1]) {
+            fillStyle = '#c6c6c6';
+            strokeStyle = '#a5a5a5';
+          } else {
+            fillStyle = '#fff';
+          } // 矩形填充
+
 
           (0, _tools.fillRect)({
             context: ctx,
-            fillStyle: j === _start.x && i === _start.y ? '#fff' : '#faf8f8',
+            fillStyle: fillStyle,
             x: startPointX,
             y: startPointY,
             width: w,
@@ -145,7 +170,7 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
 
           (0, _tools.strokeRect)({
             context: ctx,
-            strokeStyle: '#cecece',
+            strokeStyle: strokeStyle,
             x: startPointX,
             y: startPointY,
             width: w,
@@ -160,89 +185,60 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
             text: text,
             x: startPointX + 5,
             y: startPointY + h / 2
-          });
-        }
-      }
+          }); // 左边线
 
-      startTop = cellOffsetY + colHeight;
-
-      for (var _i = startRowIndex; _i <= endRowIndex; _i++) {
-        // 当前单元格宽度
-        var _h = _this.rowHeight(_i); // 单元格开始位置
-
-
-        var _startPointY = startTop - 0.5; // 下一个单元格开始位置
-
-
-        startTop += _h;
-
-        var _startLeft = cellOffsetX + rowWidth;
-
-        for (var _j = startColIndex; _j <= endColIndex; _j++) {
-          var _w = _this.colWidth(_j); // 单元格开始位置
-
-
-          var _startPointX = _startLeft - 0.5; // 下一个单元格开始位置
-
-
-          _startLeft += _w; // 左边线
-
-          if (_j === _start.x && _i >= _start.y && _i <= _end.y) {
-            (0, _tools.drawLine)({
-              context: ctx,
-              x1: _startPointX,
-              y1: _startPointY,
-              x2: _startPointX,
-              y2: _startPointY + _h,
-              lineWidth: 2,
-              strokeStyle: '#227346'
+          if (j === start.x && i >= start.y && i <= end.y) {
+            drawLineArray.push({
+              x1: startPointX,
+              y1: startPointY,
+              x2: startPointX,
+              y2: startPointY + h
             });
           } // 上边线
 
 
-          if (_i === _start.y && _j >= _start.x && _j <= _end.x) {
-            (0, _tools.drawLine)({
-              context: ctx,
-              x1: _startPointX,
-              y1: _startPointY,
-              x2: _startPointX + _w,
-              y2: _startPointY,
-              lineWidth: 2,
-              strokeStyle: '#227346'
+          if (i === start.y && j >= start.x && j <= end.x) {
+            drawLineArray.push({
+              x1: startPointX,
+              y1: startPointY,
+              x2: startPointX + w,
+              y2: startPointY
             });
           } // 右边线
 
 
-          if (_j === _end.x && _i >= _start.y && _i <= _end.y) {
-            (0, _tools.drawLine)({
-              context: ctx,
-              x1: _startPointX + _w,
-              y1: _startPointY,
-              x2: _startPointX + _w,
-              y2: _startPointY + _h,
-              lineWidth: 2,
-              strokeStyle: '#227346'
+          if (j === end.x && i >= start.y && i <= end.y) {
+            drawLineArray.push({
+              x1: startPointX + w,
+              y1: startPointY,
+              x2: startPointX + w,
+              y2: startPointY + h
             });
           } // 下边线
 
 
-          if (_i === _end.y && _j >= _start.x && _j <= _end.x) {
-            (0, _tools.drawLine)({
-              context: ctx,
-              x1: _startPointX,
-              y1: _startPointY + _h,
-              x2: _startPointX + _w,
-              y2: _startPointY + _h,
-              lineWidth: 2,
-              strokeStyle: '#227346'
+          if (i === end.y && j >= start.x && j <= end.x) {
+            drawLineArray.push({
+              x1: startPointX,
+              y1: startPointY + h,
+              x2: startPointX + w,
+              y2: startPointY + h
             });
           }
         }
-      } // 单元格canvas清除表头的区域
+      } // 单元格选中
 
 
-      ctx.clearRect(0, 0, rowWidth + 0.5, height);
-      ctx.clearRect(0, 0, width, colHeight + 0.5);
+      drawLineArray.forEach(function (item) {
+        (0, _tools.drawLine)(_objectSpread(_objectSpread({}, item), {}, {
+          context: ctx,
+          lineWidth: 2,
+          strokeStyle: '#217346'
+        }));
+      }); // 单元格canvas清除表头的区域
+
+      ctx.clearRect(0, 0, rowWidth + 1, height);
+      ctx.clearRect(0, 0, width, colHeight + 1);
     });
 
     _defineProperty(_assertThisInitialized(_this), "setCursor", function () {
@@ -269,9 +265,9 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
       // 行头宽度
       rowWidth: _this.defaultConfig.rowWidth,
       widths: {
-        0: 200,
-        1: 100,
-        3: 90
+        'A': 200,
+        'B': 100,
+        'C': 90
       },
       heights: {},
       styles: {},
@@ -289,10 +285,7 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
         start: null,
         end: null
       },
-      canvasStyle: {},
-      dataSource: props.dataSource,
-      pageX: -100,
-      pageY: 100
+      dataSource: props.dataSource
     };
     return _this;
   }
@@ -300,19 +293,125 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
   _createClass(Excel, [{
     key: "onkeydown",
     value: function onkeydown() {
+      var _this2 = this;
+
       return {
         contextmenu: function contextmenu(e) {
           e.preventDefault();
           console.log('右键菜单');
+        },
+        copy: function copy(e) {
+          var focusCells = _this2.state.focusCells;
+
+          var _handleFocusCells2 = (0, _tools.handleFocusCells)(focusCells.start, focusCells.end),
+              start = _handleFocusCells2.start,
+              end = _handleFocusCells2.end;
+
+          console.log(start, end);
+        },
+        paste: function paste(e) {
+          if (e.clipboardData || e.originalEvent) {
+            e.preventDefault();
+            var clipboardData = e.clipboardData || window.clipboardData; // 检查是否复制了excel内容 
+
+            var html = clipboardData.getData('text/html');
+            var result = (0, _tools.tableToArray)(html); // 复制的字符串内容
+
+            if (result.length === 0) {
+              result = [[{
+                format: 'string',
+                value: clipboardData.getData('text')
+              }]];
+            }
+
+            var focusCells = _this2.state.focusCells;
+
+            var _handleFocusCells3 = (0, _tools.handleFocusCells)(focusCells.start, focusCells.end),
+                start = _handleFocusCells3.start;
+
+            if (start && start.x > 0 && start.y > 0) {
+              var cell = "".concat(_tools.base26.column(start.x)).concat(start.y);
+
+              _this2.excelInsetContent(cell, result);
+            }
+          }
         }
       };
-    } // row 行 col 列
+    } // ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ excel 操作方法 ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+
+    /**
+     * 覆盖内容
+     * @param {*} startCell 开始单元格
+     * @param {*} content 内容 [[{}, {}], [{}, {}], [{}, {}]]
+     */
+
+  }, {
+    key: "excelInsetContent",
+    value: function excelInsetContent(startCell, content) {
+      if (startCell) {
+        var _startCell$match = startCell.match(/([A-Z]+)([0-9]+)/),
+            _startCell$match2 = _slicedToArray(_startCell$match, 3),
+            _ = _startCell$match2[0],
+            col = _startCell$match2[1],
+            row = _startCell$match2[2];
+
+        var _col = _tools.base26.index(col) - 1;
+
+        var _row = Number(row) - 1;
+
+        var dataSource = _toConsumableArray(this.state.dataSource);
+
+        content.forEach(function (rowContent, rowIndex) {
+          if (rowContent.length === 0) {
+            // 空行使用空数组占位
+            return dataSource[rowIndex + _row] = [];
+          }
+
+          rowContent.forEach(function (colCotent, colIndex) {
+            if (!dataSource[rowIndex + _row]) dataSource[rowIndex + _row] = [];
+            dataSource[rowIndex + _row][colIndex + _col] = colCotent;
+          });
+        });
+        this.onSetDataSourceAndPaintInit(dataSource);
+      }
+    }
+    /**
+     * 获取excel数据
+     */
+
+  }, {
+    key: "getExcelData",
+    value: function getExcelData() {
+      var dataSource = _toConsumableArray(this.state.dataSource);
+
+      for (var i = 0, len = dataSource.length; i < len; i++) {
+        dataSource[i] = dataSource[i] || [];
+
+        for (var j = 0, l = dataSource[i].length; j < l; j++) {
+          dataSource[i][j] = dataSource[i][j] || null;
+        }
+      }
+
+      return dataSource;
+    }
+    /**
+     * 聚焦单元格
+     * @param {*} cell 
+     */
+
+  }, {
+    key: "focusCell",
+    value: function focusCell(cell) {
+      console.log(cell);
+    } // ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑ excel 操作方法 ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
+    // row 行 col 列
 
   }, {
     key: "componentDidMount",
     value: function componentDidMount() {
-      var _this2 = this;
+      var _this3 = this;
 
+      window.excel = this;
       var resizeObserver = new ResizeObserver(function (entries) {
         var _iterator = _createForOfIteratorHelper(entries),
             _step;
@@ -321,7 +420,7 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
           for (_iterator.s(); !(_step = _iterator.n()).done;) {
             var entry = _step.value;
 
-            _this2.paintInit(entry.target);
+            _this3.paintInit(entry.target);
           }
         } catch (err) {
           _iterator.e(err);
@@ -332,22 +431,29 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
       var dom = document.querySelector('#canvas_wrap');
       resizeObserver.observe(dom);
       dom === null || dom === void 0 ? void 0 : dom.addEventListener(_tools.isFirefox ? 'DOMMouseScroll' : 'mousewheel', this.handleWheel);
+    } // 修改 dataSource,并重回canvas
+
+  }, {
+    key: "onSetDataSourceAndPaintInit",
+    value: function onSetDataSourceAndPaintInit(dataSource) {
+      var _this4 = this;
+
+      var other = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+      this.setState(_objectSpread({
+        dataSource: dataSource
+      }, other), function () {
+        _this4.paintInit();
+      });
     }
   }, {
     key: "UNSAFE_componentWillReceiveProps",
     value: function UNSAFE_componentWillReceiveProps(nextProps) {
-      var _this3 = this;
-
-      this.setState({
-        dataSource: nextProps.dataSource
-      }, function () {
-        _this3.paintInit();
-      });
+      this.onSetDataSourceAndPaintInit(nextProps.dataSource);
     }
   }, {
     key: "handleWheel",
     value: function handleWheel(e) {
-      var _this4 = this;
+      var _this5 = this;
 
       e.preventDefault();
       var deltaX = e.deltaX,
@@ -377,7 +483,7 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
         scrollTop: _scrollTop <= 0 ? 0 : _scrollTop,
         scrollLeft: _scrollLeft <= 0 ? 0 : _scrollLeft
       }, function () {
-        _this4.paintInit();
+        _this5.paintInit();
       });
     }
   }, {
@@ -430,7 +536,7 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
           scrollTop = _this$state3.scrollTop; // 寻找开始位置处是第几列
       // 宽度累加 与滚动条的偏移量对比 寻找从第几列开始绘制
 
-      var startColIndex = 0;
+      var startColIndex = 1;
       var offsetX = this.colWidth(startColIndex);
 
       while (offsetX < scrollLeft) {
@@ -451,7 +557,7 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
 
       var cellOffsetX = offsetX - scrollLeft - this.colWidth(startColIndex); // 寻找开始位置处是第几行
 
-      var startRowIndex = 0;
+      var startRowIndex = 1;
       var offsetY = this.rowHeight(startRowIndex);
 
       while (offsetY < scrollTop) {
@@ -496,8 +602,43 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
         endColIndex: endColIndex,
         width: w,
         height: h
+      }); // 左上角
+
+      this.paintTriangle(rcctx);
+    } // 左上角
+
+  }, {
+    key: "paintTriangle",
+    value: function paintTriangle(ctx) {
+      var _this$state4 = this.state,
+          rowWidth = _this$state4.rowWidth,
+          colHeight = _this$state4.colHeight; // 矩形填充
+
+      (0, _tools.fillRect)({
+        context: ctx,
+        fillStyle: '#fff',
+        x: 0,
+        y: 0,
+        width: rowWidth + 1,
+        height: colHeight + 1
+      }); // 矩形边框
+
+      (0, _tools.strokeRect)({
+        context: ctx,
+        strokeStyle: '#cecece',
+        x: 0.5,
+        y: 0,
+        width: rowWidth - 0.5,
+        height: colHeight - 0.5
       });
-    }
+      ctx.fillStyle = "#dfdfdf";
+      ctx.moveTo(rowWidth - 2, 0.5);
+      ctx.lineTo(rowWidth - 2, colHeight - 2);
+      ctx.lineTo(0.5, colHeight - 2);
+      ctx.lineTo(rowWidth - 2, 0.5);
+      ctx.fill();
+    } // 单元格区域
+
   }, {
     key: "paintCol",
     value:
@@ -509,13 +650,20 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
      * @param {*} end 结束单元格的索引
      */
     function paintCol(ctx, x, start, end, w) {
-      var _this$state4 = this.state,
-          rowWidth = _this$state4.rowWidth,
-          colHeight = _this$state4.colHeight,
-          focusCells = _this$state4.focusCells; // 先擦除后绘制
+      var _this$state5 = this.state,
+          rowWidth = _this$state5.rowWidth,
+          colHeight = _this$state5.colHeight,
+          focusCells = _this$state5.focusCells; // 先擦除后绘制
 
       ctx.clearRect(0, 0, w, colHeight - 1);
-      var startLeft = x + rowWidth; // console.log('focusCells', focusCells)
+      var startLeft = x + rowWidth;
+      var focusX = null;
+
+      if (focusCells.start && focusCells.end) {
+        focusX = [focusCells.start.x, focusCells.end.x].bubbleSort();
+      }
+
+      var drawLineArray = [];
 
       for (var index = start; index <= end; index++) {
         // 当前单元格宽度
@@ -524,11 +672,31 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
         var startPointX = startLeft - 0.5; // 下一个单元格开始位置
 
         startLeft += width;
-        ctx.beginPath(); // 矩形填充
+        ctx.beginPath();
+        var fillStyle = null;
+        var color = null;
+        var strokeStyle = null; // 单元格选择的列标志线
+
+        if (focusX && index >= focusX[0] && index <= focusX[1]) {
+          fillStyle = '#d2d2d2';
+          color = '#2a694a';
+          strokeStyle = '#a6a6a6';
+          drawLineArray.push({
+            x1: startPointX,
+            y1: colHeight - 0.5,
+            x2: startPointX + width,
+            y2: colHeight - 0.5
+          });
+        } else {
+          fillStyle = '#e6e6e6';
+          color = '#333';
+          strokeStyle = '#9e9e9e';
+        } // 矩形填充
+
 
         (0, _tools.fillRect)({
           context: ctx,
-          fillStyle: '#f5f5f5',
+          fillStyle: fillStyle,
           x: startPointX,
           y: 0,
           width: width,
@@ -537,27 +705,36 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
 
         (0, _tools.strokeRect)({
           context: ctx,
-          strokeStyle: '#cecece',
+          strokeStyle: strokeStyle,
           x: startPointX,
           y: 0,
           width: width,
-          height: colHeight
+          height: colHeight - 0.5
         }); // 文本
 
         (0, _tools.fillText)({
           context: ctx,
           font: '16px PingFang SC',
-          fillStyle: '#333',
-          textAlign: 'center',
-          text: (0, _tools.colTitle)(index + 1),
-          x: startPointX + width / 2,
+          fillStyle: color,
+          textAlign: 'left',
+          text: _tools.base26.column(index),
+          x: startPointX + 5,
           y: colHeight / 2
         });
         ctx.stroke();
         ctx.closePath();
-      }
+      } // 清除左上角
 
-      ctx.clearRect(0, 0, rowWidth, colHeight);
+
+      ctx.clearRect(0, 0, rowWidth, colHeight); // 单元格选择的行标志线
+
+      drawLineArray.forEach(function (item) {
+        (0, _tools.drawLine)(_objectSpread(_objectSpread({}, item), {}, {
+          context: ctx,
+          lineWidth: 2,
+          strokeStyle: '#227346'
+        }));
+      });
     }
     /**
      * 绘制可视区域的行头
@@ -571,12 +748,20 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
   }, {
     key: "paintRow",
     value: function paintRow(ctx, y, start, end, h) {
-      var _this$state5 = this.state,
-          rowWidth = _this$state5.rowWidth,
-          colHeight = _this$state5.colHeight; // 先擦除后绘制
+      var _this$state6 = this.state,
+          rowWidth = _this$state6.rowWidth,
+          colHeight = _this$state6.colHeight,
+          focusCells = _this$state6.focusCells; // 先擦除后绘制
 
       ctx.clearRect(0, 0, rowWidth - 1, h);
       var startTop = y + colHeight;
+      var focusY = null;
+
+      if (focusCells.start && focusCells.end) {
+        focusY = [focusCells.start.y, focusCells.end.y].bubbleSort();
+      }
+
+      var drawLineArray = [];
 
       for (var index = start; index <= end; index++) {
         // 当前单元格宽度
@@ -585,11 +770,31 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
         var startPointY = startTop - 0.5; // 下一个单元格开始位置
 
         startTop += height;
-        ctx.beginPath(); // 矩形填充
+        ctx.beginPath();
+        var fillStyle = null;
+        var color = null;
+        var strokeStyle = null; // 单元格选择的行标志线
+
+        if (focusY && index >= focusY[0] && index <= focusY[1]) {
+          fillStyle = '#d2d2d2';
+          color = '#2a694a';
+          strokeStyle = '#a6a6a6';
+          drawLineArray.push({
+            x1: rowWidth,
+            y1: startPointY,
+            x2: rowWidth,
+            y2: startPointY + height
+          });
+        } else {
+          fillStyle = '#e6e6e6';
+          color = '#333';
+          strokeStyle = '#9e9e9e';
+        } // 矩形填充
+
 
         (0, _tools.fillRect)({
           context: ctx,
-          fillStyle: '#f5f5f5',
+          fillStyle: fillStyle,
           x: 0,
           y: startPointY,
           width: rowWidth,
@@ -598,7 +803,7 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
 
         (0, _tools.strokeRect)({
           context: ctx,
-          strokeStyle: '#cecece',
+          strokeStyle: strokeStyle,
           x: 0,
           y: startPointY,
           width: rowWidth,
@@ -608,33 +813,35 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
         (0, _tools.fillText)({
           context: ctx,
           font: '16px PingFang SC',
-          fillStyle: '#333',
+          fillStyle: color,
           textAlign: 'center',
-          text: index + 1,
+          text: index,
           x: rowWidth / 2,
           y: startPointY + height / 2
         });
         ctx.stroke();
         ctx.closePath();
-        ctx.clearRect(0, 0, rowWidth, colHeight);
-      }
+      } // 清除左上角
+
+
+      ctx.clearRect(0, 0, rowWidth, colHeight); // 单元格选择的行标志线
+
+      drawLineArray.forEach(function (item) {
+        (0, _tools.drawLine)(_objectSpread(_objectSpread({}, item), {}, {
+          context: ctx,
+          lineWidth: 2,
+          strokeStyle: '#227346'
+        }));
+      });
     }
   }, {
     key: "handleMouseDown",
-    value: function handleMouseDown() {
-      this.mouseDownSign = true;
-    }
-  }, {
-    key: "handleMouseLeave",
-    value: function handleMouseLeave() {
-      this.mouseDownSign = false;
-    }
-  }, {
-    key: "handleMouseUp",
-    value: function handleMouseUp(e) {
-      var _this5 = this;
+    value: function handleMouseDown(e) {
+      var _this6 = this;
 
-      this.mouseDownSign = false;
+      // 忽略 鼠标右键触发的点击事件
+      if (e.button === 2) return;
+      this.mouseDownSign = true;
 
       var _this$position = this.position(e),
           x = _this$position.x,
@@ -643,28 +850,28 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
       var start = null;
       var end = null;
 
-      if (x < 0 && y >= 0) {
+      if (x <= 0 && y > 0) {
         start = {
-          x: 0,
+          x: 1,
           y: y
         };
         end = {
           x: Number.MAX_VALUE,
           y: y
         };
-      } else if (x >= 0 && y < 0) {
+      } else if (x > 0 && y <= 0) {
         start = {
           x: x,
-          y: 0
+          y: 1
         };
         end = {
           x: x,
           y: Number.MAX_VALUE
         };
-      } else if (x < 0 && y < 0) {
+      } else if (x === 0 && y === 0) {
         start = {
-          x: 0,
-          y: 0
+          x: 1,
+          y: 1
         };
         end = {
           x: Number.MAX_VALUE,
@@ -684,49 +891,65 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
       this.setState({
         focusCells: (0, _tools.handleFocusCells)(start, end)
       }, function () {
-        _this5.paintInit();
+        _this6.paintInit();
       });
+    }
+  }, {
+    key: "handleMouseLeave",
+    value: function handleMouseLeave() {
+      this.mouseDownSign = false;
+    }
+  }, {
+    key: "handleMouseUp",
+    value: function handleMouseUp() {
+      this.mouseDownSign = false;
     }
   }, {
     key: "handleMouseMove",
     value: function handleMouseMove(e) {
-      var _this6 = this;
+      var _this7 = this;
 
-      if (!this.mouseDownSign || timer) return;
-      var pageX = e.pageX,
-          pageY = e.pageY,
+      var clientX = e.clientX,
+          clientY = e.clientY,
           currentTarget = e.currentTarget;
+      if (timer) return;
       timer = setTimeout(function () {
         timer = null;
 
-        var _this6$position = _this6.position({
-          pageX: pageX,
-          pageY: pageY,
+        var position = _this7.position({
+          clientX: clientX,
+          clientY: clientY,
           currentTarget: currentTarget
-        }),
-            x = _this6$position.x,
-            y = _this6$position.y;
+        });
 
-        var focusCells = _objectSpread({}, _this6.state.focusCells);
-
-        if (focusCells.start) {
-          focusCells.end = {
-            x: x,
-            y: y
-          };
-        } else {
-          focusCells.start = {
-            x: x,
-            y: y
-          };
-        }
-
-        _this6.setState({
-          focusCells: (0, _tools.handleFocusCells)(focusCells.start, focusCells.end)
+        _this7.setState({
+          mouseMovePosition: position
         }, function () {
-          _this6.paintInit();
+          _this7.handleMouseEvent(e, position);
+        });
+
+        if (!_this7.mouseDownSign) return;
+        var x = position.x,
+            y = position.y;
+
+        var focusCells = _objectSpread({}, _this7.state.focusCells); // 记录起始与结束单元格
+
+
+        focusCells[focusCells.start ? 'end' : 'start'] = {
+          x: x,
+          y: y
+        };
+
+        _this7.setState({
+          focusCells: focusCells
+        }, function () {
+          _this7.paintInit();
         });
       }, 100);
+    }
+  }, {
+    key: "handleMouseEvent",
+    value: function handleMouseEvent(e, position) {// console.log(e, position)
     }
   }, {
     key: "position",
@@ -736,13 +959,11 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
           currentTarget = e.currentTarget;
       var offsetLeft = clientX - (currentTarget.getBoundingClientRect().left - document.documentElement.clientLeft);
       var offsetTop = clientY - (currentTarget.getBoundingClientRect().top - document.documentElement.clientTop);
-      var _this$state6 = this.state,
-          colHeight = _this$state6.colHeight,
-          rowWidth = _this$state6.rowWidth;
+      var _this$state7 = this.state,
+          colHeight = _this$state7.colHeight,
+          rowWidth = _this$state7.rowWidth;
       var x = null;
       var y = null;
-      var row = null;
-      var col = null;
       var _this$standard = this.standard,
           cellOffsetX = _this$standard.cellOffsetX,
           cellOffsetY = _this$standard.cellOffsetY,
@@ -750,8 +971,7 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
           startColIndex = _this$standard.startColIndex;
 
       if (offsetTop <= colHeight) {
-        y = -1;
-        row = -1;
+        y = 0;
       } else {
         y = startRowIndex;
         var col_acc = colHeight + cellOffsetY + this.rowHeight(y);
@@ -760,13 +980,10 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
           y++;
           col_acc += this.rowHeight(y);
         }
-
-        row = y + 1;
       }
 
       if (offsetLeft <= rowWidth) {
-        x = -1;
-        col = -1;
+        x = 0;
       } else {
         x = startColIndex;
         var row_acc = rowWidth + cellOffsetX + this.colWidth(x);
@@ -775,16 +992,14 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
           x++;
           row_acc += this.colWidth(x);
         }
-
-        col = x + 1;
       }
 
       return {
         x: x,
         y: y,
-        row: row,
-        col: (0, _tools.colTitle)(col),
-        cell: "".concat((0, _tools.colTitle)(col)).concat(row),
+        row: y,
+        col: _tools.base26.column(x),
+        cell: "".concat(_tools.base26.column(x)).concat(y),
         offsetLeft: offsetLeft,
         offsetTop: offsetTop
       };
@@ -792,7 +1007,7 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
   }, {
     key: "render",
     value: function render() {
-      var _this7 = this;
+      var _this8 = this;
 
       var styles = this.state.styles;
       var _this$props = this.props,
@@ -801,12 +1016,7 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
 
       var _className = (0, _classnames["default"])('excel-wrap', className);
 
-      var _style = _objectSpread(_objectSpread({}, style), styles); // const _focusCellStyle = {
-      //   ...focusCellStyle,
-      //   top: focusCellStyle.top - scrollTop,
-      //   left: focusCellStyle.left - scrollLeft
-      // }
-
+      var _style = _objectSpread(_objectSpread({}, style), styles);
 
       return /*#__PURE__*/_react["default"].createElement("div", {
         id: "canvas_wrap",
@@ -814,16 +1024,16 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
         className: _className // onClick={(e) => this.handleMouseUp(e)}
         ,
         onMouseDown: function onMouseDown(e) {
-          return _this7.handleMouseDown(e);
+          return _this8.handleMouseDown(e);
         },
         onMouseUp: function onMouseUp(e) {
-          return _this7.handleMouseUp(e);
+          return _this8.handleMouseUp(e);
         },
         onMouseMove: function onMouseMove(e) {
-          return _this7.handleMouseMove(e);
+          return _this8.handleMouseMove(e);
         },
         onMouseLeave: function onMouseLeave(e) {
-          return _this7.handleMouseLeave(e);
+          return _this8.handleMouseLeave(e);
         }
       }, /*#__PURE__*/_react["default"].createElement("canvas", {
         id: "row-col-canvas"

@@ -1,51 +1,68 @@
-// 列名
-export function colTitle(index) {
-  const words = [
-      '',
-      'A',
-      'B',
-      'C',
-      'D',
-      'E',
-      'F',
-      'G',
-      'H',
-      'I',
-      'J',
-      'K',
-      'L',
-      'M',
-      'N',
-      'O',
-      'P',
-      'Q',
-      'R',
-      'S',
-      'T',
-      'U',
-      'V',
-      'W',
-      'X',
-      'Y',
-      'Z',
-  ];
-  return _colTitle(index);
-  
-  // index 从 1 开始
-  function _colTitle(i) {
-    if (i <= 26) {
-        return words[i]
+// A -> 1 
+
+// 以GWW为例，则为G(6)*676+W(22)*26+W(22)*1=4650
+class Base26 {
+  words = [
+    '',
+    'A',
+    'B',
+    'C',
+    'D',
+    'E',
+    'F',
+    'G',
+    'H',
+    'I',
+    'J',
+    'K',
+    'L',
+    'M',
+    'N',
+    'O',
+    'P',
+    'Q',
+    'R',
+    'S',
+    'T',
+    'U',
+    'V',
+    'W',
+    'X',
+    'Y',
+    'Z',
+  ] 
+  constructor(){}
+  column(index) {
+    // index 从 1 开始
+    const _colTitle = (i) => {
+      if (i <= 26) {
+          return this.words[i]
+      }
+      const floor = Math.floor(i / 26);
+      const rem = i % 26;
+      if (rem === 0) {
+          // 处理26的倍数
+          return `${_colTitle(floor - 1)}${_colTitle(26)}`
+      } else {
+          return `${_colTitle(floor)}${this.words[rem]}`
+      }
     }
-    const floor = Math.floor(i / 26);
-    const rem = i % 26;
-    if (rem === 0) {
-        // 处理26的倍数
-        return `${_colTitle(floor - 1)}${_colTitle(26)}`
-    } else {
-        return `${_colTitle(floor)}${words[rem]}`
+
+    return _colTitle(index);
+  }
+  index(col) {
+    if(/^[a-zA-Z]+$/.test(col)) {
+      const _col = col.toUpperCase().split('').reverse();
+      return _col.reduce(function(accumulator, current, index){
+        return accumulator + (current.charCodeAt() - 64) * Math.pow(26, index) 
+      }, 0)
+    }else{
+      return -1
     }
   }
-} 
+}
+
+export const base26 = new Base26();
 
 export const isFirefox = typeof navigator !== 'undefined' && navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
 
@@ -58,8 +75,8 @@ export function drawLine({ context, x1 = 0, y1 = 0, x2 = 0, y2 = 0, lineWidth = 
   context.beginPath();
   context.moveTo(x1, y1);
   context.lineTo(x2, y2);
-  context.stroke();
   context.closePath();
+  context.stroke();
 }
 
 // 矩形填充
@@ -103,67 +120,6 @@ export function fillText({
   context.fillText(text, x, y);
 }
 
-// function createElement(w = 300, h = 150) {
-//   var ratio = window.devicePixelRatio || 1;
-//   var canvas = document.createElement('canvas');
-//   canvas.width = w * ratio; // 实际渲染像素
-//   canvas.height = h * ratio; // 实际渲染像素
-//   canvas.style.width = `${w}px`; // 控制显示大小
-//   canvas.style.height = `${h}px`; // 控制显示大小
-//   canvas.getContext('2d').setTransform(ratio, 0, 0, ratio, 0, 0);
-//   return canvas;
-// }
-
-
-// paintVerticalLine(ctx, x, start, end, h) {
-//   const { rowWidth, colHeight } = this.state;
-
-//   let startLeft = x + rowWidth;
-
-//   // 竖线
-//   for (let index = start; index <= end; index++) {
-//     // 当前单元格宽度
-//     const width = this.colWidth(index);
-//     // 单元格开始位置
-//     const startPointX = startLeft - 0.5;
-//     // 下一个单元格开始位置
-//     startLeft += width;
-
-//     drawLine({ 
-//       context: ctx, 
-//       x1: startPointX, 
-//       y1: colHeight, 
-//       x2: startPointX, 
-//       y2: h,
-//     })
-//   }
-// }
-
-// paintHorizontalLine(ctx, y, start, end, w) {
-//   const { rowWidth, colHeight } = this.state;
-
-//   let startTop = y + colHeight;
-
-//   // 竖线
-//   for (let index = start; index <= end; index++) {
-//     // 当前单元格宽度
-//     const height = this.rowHeight(index);
-//     // 单元格开始位置
-//     const startPointY = startTop - 0.5;
-//     // 下一个单元格开始位置
-//     startTop += height;
-
-//     drawLine({ 
-//       context: ctx, 
-//       x1: rowWidth, 
-//       y1: startPointY, 
-//       x2: w, 
-//       y2: startPointY,
-//     })
-//   }
-// }
-
-// 某列的宽
 export function colWidth(i) {
   const { widths, cellWidth } = this.state;
   return widths[i] || cellWidth;
@@ -176,14 +132,56 @@ export function rowHeight(i) {
 }
 
 export function handleFocusCells(start, end) {
-  let _start = start;
-  let _end = end;
-  if (start.x > end.x || (start.x === end.x && start.y > start.y)) {
-    _start = end;
-    _end = start;
+  let _start = start || {x: -1, y: -1};
+  let _end = end || {x: -1, y: -1};
+
+  if (start && end) {
+    // 起始结束位置方向有不同情况，将记录的起始结束单元格转换为左上->右下的方向，便于操作
+    const _x = [start.x, end.x].bubbleSort();
+    const _y = [start.y, end.y].bubbleSort();
+    _start = {x: _x[0] || 1, y: _y[0] || 1};
+    _end = {x: _x[1] || 1, y: _y[1] || 1};
   }
+
   return {
     start: _start,
     end: _end
   }
+
+}
+
+export function tableToArray(table) {
+  const dom = new DOMParser().parseFromString(table, 'text/html');
+  // 加载所有的行
+  const trs = Array.from(dom.querySelectorAll('table tr'));
+  return trs.map(item => {
+    return [...item.children].map(c => {
+      return {
+        format: 'string',
+        value: c.innerText
+      }
+    });
+  })
+}
+
+
+Array.prototype.bubbleSort = function() {
+  const _this = [...this];
+  const len = _this.length;
+  // 每次循环就有一位最大值排列到了最后，即无需再与之对比
+  for (let i = 0; i < len - 1; i++) {
+      // 根据i确定每次循环最后对比元素位置
+      // i -> 0 -> len - 1
+      // i -> 1 -> len - 2
+      // ...
+      for (let j = 0; j < len - 1 - i; j++) {
+          // 交换位置，将大值往后排列，继续对比
+          if(_this[j] > _this[j + 1]) {
+              const element = _this[j];
+              _this[j] = _this[j + 1];
+              _this[j + 1] = element;
+          }
+      }
+  }
+  return _this;
 }

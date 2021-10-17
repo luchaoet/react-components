@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
+import keyboardShortcut from '../keyboardShortcut';
 import { 
   isFirefox, 
   fillRect, 
@@ -10,9 +11,7 @@ import {
   drawLine,
   handleFocusCells,
   tableToArray,
-  base26,
-} from './tools';
-import keyboardShortcut from '../keyboardShortcut'
+  base26 } from './tools';
 import './index.scss';
 
 let timer = null;
@@ -42,9 +41,9 @@ export default class Excel extends Component {
       // 行头宽度
       rowWidth: this.defaultConfig.rowWidth,
       widths: {
-        'A': 200,
-        'B': 100,
-        'C': 90
+        A: 200,
+        B: 100,
+        C: 90
       },
       heights: {},
       styles: {},
@@ -72,8 +71,8 @@ export default class Excel extends Component {
         e.preventDefault();
         console.log('右键菜单')
       },
-      copy: (e) => {
-        const focusCells = this.state.focusCells;
+      copy: () => {
+        const {focusCells} = this.state;
         const { start, end } = handleFocusCells(focusCells.start, focusCells.end);
         console.log(start, end)
       },
@@ -90,7 +89,7 @@ export default class Excel extends Component {
               [{format: 'string', value: clipboardData.getData('text')}]
             ]
           }
-          const focusCells = this.state.focusCells;
+          const {focusCells} = this.state;
           const { start } = handleFocusCells(focusCells.start, focusCells.end);
 
           if (start && start.x > 0 && start.y > 0) {
@@ -110,6 +109,7 @@ export default class Excel extends Component {
    */
   excelInsetContent(startCell, content) {
     if (startCell) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const [_, col, row] = startCell.match(/([A-Z]+)([0-9]+)/);
       const _col = base26.index(col) - 1;
       const _row = Number(row) - 1;
@@ -119,10 +119,11 @@ export default class Excel extends Component {
       content.forEach((rowContent, rowIndex) => {
         if (rowContent.length === 0) {
           // 空行使用空数组占位
-          return dataSource[rowIndex + _row] = [];
+          dataSource[rowIndex + _row] = [];
+          return;
         }
         rowContent.forEach((colCotent, colIndex) => {
-          if(!dataSource[rowIndex + _row]) dataSource[rowIndex + _row] = []
+          if (!dataSource[rowIndex + _row]) dataSource[rowIndex + _row] = []
           dataSource[rowIndex + _row][colIndex + _col] = colCotent;
         })
       })
@@ -135,9 +136,9 @@ export default class Excel extends Component {
    */
   getExcelData() {
     const dataSource = [...this.state.dataSource];
-    for(let i = 0,len = dataSource.length; i < len; i++) {
+    for (let i = 0, len = dataSource.length; i < len; i++) {
       dataSource[i] = dataSource[i] || [];
-      for(let j = 0, l = dataSource[i].length; j < l; j++) {
+      for (let j = 0, l = dataSource[i].length; j < l; j++) {
         dataSource[i][j] = dataSource[i][j] || null;
       }
     }
@@ -323,7 +324,7 @@ export default class Excel extends Component {
     // 矩形边框
     strokeRect({ context: ctx, strokeStyle: '#cecece', x: 0.5, y: 0, width: rowWidth - 0.5, height: colHeight - 0.5 });
 
-    ctx.fillStyle = "#dfdfdf";
+    ctx.fillStyle = '#dfdfdf';
     ctx.moveTo(rowWidth - 2, 0.5);
     ctx.lineTo(rowWidth - 2, colHeight - 2);
     ctx.lineTo(0.5, colHeight - 2);
@@ -441,7 +442,7 @@ export default class Excel extends Component {
     }
 
     // 单元格选中
-    drawLineArray.forEach(item => {
+    drawLineArray.forEach((item) => {
       drawLine({
         ...item,
         context: ctx, 
@@ -533,15 +534,14 @@ export default class Excel extends Component {
     ctx.clearRect(0, 0, rowWidth, colHeight);
     
     // 单元格选择的行标志线
-    drawLineArray.forEach(item => {
+    drawLineArray.forEach((item) => {
       drawLine({
         ...item,
         context: ctx, 
         lineWidth: 2,
         strokeStyle: '#227346' 
       });
-    })
-
+    });
   }
 
   /**
@@ -623,15 +623,14 @@ export default class Excel extends Component {
     ctx.clearRect(0, 0, rowWidth, colHeight);
 
     // 单元格选择的行标志线
-    drawLineArray.forEach(item => {
+    drawLineArray.forEach((item) => {
       drawLine({
         ...item,
         context: ctx, 
         lineWidth: 2,
         strokeStyle: '#227346' 
       });
-    })
-
+    });
   }
 
   setCursor = (type = 'pointer') => {
@@ -705,7 +704,7 @@ export default class Excel extends Component {
     }, 100);
   }
 
-  handleMouseEvent(e, position) {
+  handleMouseEvent() {
     // console.log(e, position)
   }
 

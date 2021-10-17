@@ -14,5 +14,7 @@ module.exports = getESLintConfig('react-ts', {
     '@iceworks/best-practices/recommend-functional-component': 0,
     'react/no-unused-state': 0,
     'react/no-access-state-in-setstate': 0,
+    'max-lines': 0,
+    '@iceworks/best-practices/recommend-polyfill': 0
   },
 });

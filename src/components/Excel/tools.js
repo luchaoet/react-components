@@ -1,6 +1,3 @@
-// A -> 1 
-
-// 以GWW为例，则为G(6)*676+W(22)*26+W(22)*1=4650
 class Base26 {
   words = [
     '',
@@ -30,33 +27,32 @@ class Base26 {
     'X',
     'Y',
     'Z',
-  ] 
-  constructor(){}
+  ]
   column(index) {
     // index 从 1 开始
     const _colTitle = (i) => {
       if (i <= 26) {
-          return this.words[i]
+        return this.words[i]
       }
       const floor = Math.floor(i / 26);
       const rem = i % 26;
       if (rem === 0) {
-          // 处理26的倍数
-          return `${_colTitle(floor - 1)}${_colTitle(26)}`
+        // 处理26的倍数
+        return `${_colTitle(floor - 1)}${_colTitle(26)}`
       } else {
-          return `${_colTitle(floor)}${this.words[rem]}`
+        return `${_colTitle(floor)}${this.words[rem]}`
       }
     }
 
     return _colTitle(index);
   }
   index(col) {
-    if(/^[a-zA-Z]+$/.test(col)) {
+    if (/^[a-zA-Z]+$/.test(col)) {
       const _col = col.toUpperCase().split('').reverse();
-      return _col.reduce(function(accumulator, current, index){
+      return _col.reduce((accumulator, current, index) => {
         return accumulator + (current.charCodeAt() - 64) * Math.pow(26, index) 
       }, 0)
-    }else{
+    } else {
       return -1
     }
   }
@@ -71,7 +67,7 @@ export function drawLine({ context, x1 = 0, y1 = 0, x2 = 0, y2 = 0, lineWidth = 
   context.lineWidth = lineWidth;
   context.strokeStyle = strokeStyle;
   // 线条末端形状
-  context.lineCap = "square";
+  context.lineCap = 'square';
   context.beginPath();
   context.moveTo(x1, y1);
   context.lineTo(x2, y2);
@@ -147,15 +143,14 @@ export function handleFocusCells(start, end) {
     start: _start,
     end: _end
   }
-
 }
 
 export function tableToArray(table) {
   const dom = new DOMParser().parseFromString(table, 'text/html');
   // 加载所有的行
   const trs = Array.from(dom.querySelectorAll('table tr'));
-  return trs.map(item => {
-    return [...item.children].map(c => {
+  return trs.map((item) => {
+    return [...item.children].map((c) => {
       return {
         format: 'string',
         value: c.innerText
@@ -165,23 +160,24 @@ export function tableToArray(table) {
 }
 
 
-Array.prototype.bubbleSort = function() {
+// eslint-disable-next-line no-extend-native
+Array.prototype.bubbleSort = function () {
   const _this = [...this];
   const len = _this.length;
   // 每次循环就有一位最大值排列到了最后，即无需再与之对比
   for (let i = 0; i < len - 1; i++) {
-      // 根据i确定每次循环最后对比元素位置
-      // i -> 0 -> len - 1
-      // i -> 1 -> len - 2
-      // ...
-      for (let j = 0; j < len - 1 - i; j++) {
-          // 交换位置，将大值往后排列，继续对比
-          if(_this[j] > _this[j + 1]) {
-              const element = _this[j];
-              _this[j] = _this[j + 1];
-              _this[j + 1] = element;
-          }
+    // 根据i确定每次循环最后对比元素位置
+    // i -> 0 -> len - 1
+    // i -> 1 -> len - 2
+    // ...
+    for (let j = 0; j < len - 1 - i; j++) {
+      // 交换位置，将大值往后排列，继续对比
+      if (_this[j] > _this[j + 1]) {
+        const element = _this[j];
+        _this[j] = _this[j + 1];
+        _this[j + 1] = element;
       }
+    }
   }
   return _this;
 }

@@ -335,7 +335,7 @@ export default class Excel extends Component {
   // 单元格区域
   paintCells = ({ctx, cellOffsetX, cellOffsetY, startRowIndex, endRowIndex, startColIndex, endColIndex, width, height}) => {
     const { rowWidth, colHeight, dataSource, focusCells } = this.state;
-    const {start, end} = handleFocusCells(focusCells.start, focusCells.end);
+    const { start, end } = handleFocusCells(focusCells.start, focusCells.end);
 
     let startTop = cellOffsetY + colHeight;
 
@@ -364,10 +364,13 @@ export default class Excel extends Component {
         // 下一个单元格开始位置
         startLeft += w;
 
+        const startCell = focusCells.start || {x: -1, y: -1};
         let fillStyle = null;
         let strokeStyle = '#d4d4d4';
-        if (j === focusX[0] && i === focusY[0]) {
-          fillStyle = '#fff'
+        
+        if (j === startCell.x && i === startCell.y) {
+          fillStyle = '#fff';
+          strokeStyle = '#a5a5a5';
         } else if (j >= focusX[0] && j <= focusX[1] && i >= focusY[0] && i <= focusY[1]) {
           fillStyle = '#c6c6c6'
           strokeStyle = '#a5a5a5';
@@ -402,40 +405,40 @@ export default class Excel extends Component {
         // 左边线
         if (j === start.x && i >= start.y && i <= end.y) {
           drawLineArray.push({ 
-            x1: startPointX, 
-            y1: startPointY, 
-            x2: startPointX, 
-            y2: startPointY + h,
+            x1: startPointX + 0.5, 
+            y1: startPointY + 0.5, 
+            x2: startPointX + 0.5, 
+            y2: startPointY + 0.5 + h,
           })
         }
 
         // 上边线
         if (i === start.y && j >= start.x && j <= end.x) {
           drawLineArray.push({
-            x1: startPointX, 
-            y1: startPointY, 
-            x2: startPointX + w, 
-            y2: startPointY, 
+            x1: startPointX + 0.5, 
+            y1: startPointY + 0.5, 
+            x2: startPointX + 0.5 + w, 
+            y2: startPointY + 0.5, 
           })
         }
 
         // 右边线
         if (j === end.x && i >= start.y && i <= end.y) {
           drawLineArray.push({
-            x1: startPointX + w, 
-            y1: startPointY, 
-            x2: startPointX + w, 
-            y2: startPointY + h, 
+            x1: startPointX + 0.5 + w, 
+            y1: startPointY + 0.5, 
+            x2: startPointX + 0.5 + w, 
+            y2: startPointY + 0.5 + h, 
           });
         }
 
         // 下边线
         if (i === end.y && j >= start.x && j <= end.x) {
           drawLineArray.push({
-            x1: startPointX, 
-            y1: startPointY + h, 
-            x2: startPointX + w, 
-            y2: startPointY + h, 
+            x1: startPointX + 0.5, 
+            y1: startPointY + 0.5 + h, 
+            x2: startPointX + 0.5 + w, 
+            y2: startPointY + 0.5 + h, 
           });
         }
       }
@@ -492,19 +495,28 @@ export default class Excel extends Component {
       let color = null;
       let strokeStyle = null;
 
-      // 单元格选择的列标志线
       if (focusX && index >= focusX[0] && index <= focusX[1]) {
+        drawLineArray.push({
+          x1: startPointX + 0.5, 
+          y1: colHeight, 
+          x2: startPointX + 0.5 + width, 
+          y2: colHeight, 
+        })
+      }
+
+      // 单元格选择的列标志线
+      if (index === focusCells?.end?.x && focusCells?.end?.y === Number.MAX_VALUE) {
+        // 列全选样式
+        fillStyle = '#d8eee2';
+        color = '#466e63';
+        strokeStyle = '#9e9e9e';
+      } else if (focusX && index >= focusX[0] && index <= focusX[1]) {
+        // 列选中样式
         fillStyle = '#d2d2d2';
         color = '#2a694a';
         strokeStyle = '#a6a6a6';
-
-        drawLineArray.push({
-          x1: startPointX, 
-          y1: colHeight - 0.5, 
-          x2: startPointX + width, 
-          y2: colHeight - 0.5, 
-        })
       } else {
+        // 默认样式
         fillStyle = '#e6e6e6';
         color = '#333';
         strokeStyle = '#9e9e9e';
@@ -704,8 +716,20 @@ export default class Excel extends Component {
     }, 100);
   }
 
-  handleMouseEvent() {
-    // console.log(e, position)
+  // 全局鼠标样式处理
+  handleMouseEvent(e, {x, y}) {
+    let cursor = 'cell';
+    if (x > 0 && y === 0) {
+      cursor = 's-resize';
+    } else if (x === 0 && y > 0) {
+      cursor = 'e-resize';
+    }
+    this.setState((prevState) => ({
+      styles: {
+        ...prevState.styles,
+        cursor
+      }
+    }));
   }
 
   position(e) {

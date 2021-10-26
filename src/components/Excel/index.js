@@ -35,33 +35,32 @@ export default class Excel extends Component {
     this.position = this.position.bind(this);
     this.handleWheel = this.handleWheel.bind(this);
     this.state = {
+      // 单元格默认宽度
       cellWidth: props.cellWidth || this.defaultConfig.cellWidth,
+      // 单元格默认高度
       cellHeight: props.cellHeight || this.defaultConfig.cellHeight,
       // 列头高度
       colHeight: this.defaultConfig.colHeight,
       // 行头宽度
       rowWidth: this.defaultConfig.rowWidth,
+      // 列宽
       widths: {
         A: 200,
       },
+      // 行高
       heights: {
         1: 80,
         2: 50,
         5: 40,
       },
       // 单元格输入框样式
-      cellInputStyle: {},
+      cellInput: { style: {}, value: '', position: null },
       styles: {},
       // 纵向滚动距离
       scrollTop: 0,
       // 横向滚动距离
       scrollLeft: 0,
-      focusCellStyle: {
-        width: 80,
-        height: 25,
-        top: 30,
-        left: 100,
-      },
+      // 选中区域
       focusCells: {
         start: null,
         end: null,
@@ -118,7 +117,7 @@ export default class Excel extends Component {
       const [_, col, row] = startCell.match(/([A-Z]+)([0-9]+)/);
       const _col = base26.index(col) - 1;
       const _row = Number(row) - 1;
-      const dataSource = [...this.state.dataSource];
+      const dataSource = {...this.state.dataSource};
       content.forEach((rowContent, rowIndex) => {
         if (rowContent.length === 0) {
           // 空行使用空数组占位
@@ -137,7 +136,7 @@ export default class Excel extends Component {
    * 获取excel数据
    */
   getExcelData() {
-    const dataSource = [...this.state.dataSource];
+    const dataSource = {...this.state.dataSource};
     for (let i = 0, len = dataSource.length; i < len; i++) {
       dataSource[i] = dataSource[i] || [];
       for (let j = 0, l = dataSource[i].length; j < l; j++) {
@@ -151,7 +150,12 @@ export default class Excel extends Component {
    * @param {*} cell
    */
   focusCell(cell) {
-    console.log(cell);
+    
+  }
+  // 获取单元格数据 A1
+  getCellValue(cell) {
+    const [_, col, row] = cell.match(/([A-Z]+)([0-9]+)/);
+    return this.state.dataSource?.[row]?.[col]
   }
   // ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑ excel 操作方法 ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
 
@@ -223,23 +227,34 @@ export default class Excel extends Component {
     }
   }
   canvasInit(w, h) {
-    const rowColCanvas = document.getElementById('row-col-canvas');
+    const colCanvas = document.getElementById('col-canvas');
+    const rowCanvas = document.getElementById('row-canvas');
     const contentCanvas = document.getElementById('content-canvas');
-    if (!rowColCanvas || !contentCanvas) {
+    if (!colCanvas || !rowCanvas || !contentCanvas) {
       return;
     }
-    rowColCanvas.width = w * this.ratio; // 实际渲染像素
-    rowColCanvas.height = h * this.ratio; // 实际渲染像素
-    rowColCanvas.style.width = `${w}px`; // 控制显示大小
-    rowColCanvas.style.height = `${h}px`; // 控制显示大小
-    const rcctx = rowColCanvas.getContext('2d');
-    rcctx.setTransform(this.ratio, 0, 0, this.ratio, 0, 0);
+    const { colHeight, rowWidth } = this.state;
+    colCanvas.width = w * this.ratio; // 实际渲染像素
+    colCanvas.height = colHeight * this.ratio; // 实际渲染像素
+    colCanvas.style.width = `${w}px`; // 控制显示大小
+    colCanvas.style.height = `${colHeight}px`; // 控制显示大小
+    const colContext = colCanvas.getContext('2d');
+    colContext.setTransform(this.ratio, 0, 0, this.ratio, 0, 0);
+
+    rowCanvas.width = rowWidth * this.ratio; // 实际渲染像素
+    rowCanvas.height = h * this.ratio; // 实际渲染像素
+    rowCanvas.style.width = `${rowWidth}px`; // 控制显示大小
+    rowCanvas.style.height = `${h}px`; // 控制显示大小
+    const rowContext = rowCanvas.getContext('2d');
+    rowContext.setTransform(this.ratio, 0, 0, this.ratio, 0, 0);
+
     contentCanvas.width = w * this.ratio;
     contentCanvas.height = h * this.ratio;
     contentCanvas.style.width = `${w}px`;
     contentCanvas.style.height = `${h}px`;
-    const cctx = contentCanvas.getContext('2d');
-    cctx.setTransform(this.ratio, 0, 0, this.ratio, 0, 0);
+    const contentContext = contentCanvas.getContext('2d');
+    contentContext.setTransform(this.ratio, 0, 0, this.ratio, 0, 0);
+
     const { scrollLeft, scrollTop } = this.state;
     // 寻找开始位置处是第几列
     // 宽度累加 与滚动条的偏移量对比 寻找从第几列开始绘制
@@ -291,12 +306,12 @@ export default class Excel extends Component {
       height: h,
     };
     // 列头 从x位置开始绘制 startRowIndex列 到 startRowIndex + 20列
-    this.paintCol(rcctx, cellOffsetX, startColIndex, endColIndex, w);
+    this.paintCol(colContext, cellOffsetX, startColIndex, endColIndex, w);
     // 行头
-    this.paintRow(rcctx, cellOffsetY, startRowIndex, endRowIndex, h);
+    this.paintRow(rowContext, cellOffsetY, startRowIndex, endRowIndex, h);
     // 单元格
     this.paintCells({
-      ctx: cctx,
+      ctx: contentContext,
       cellOffsetX,
       cellOffsetY,
       startRowIndex,
@@ -307,7 +322,7 @@ export default class Excel extends Component {
       height: h,
     });
     // 左上角
-    this.paintTriangle(rcctx);
+    this.paintTriangle(contentContext);
   }
   // 左上角
   paintTriangle(ctx) {
@@ -671,31 +686,29 @@ export default class Excel extends Component {
 
   // 双击编辑单元格
   handleDoubleClick(e) {
-    const { width, height, cellLeft, cellTop } = this.position(e);
-    // console.log(this.position(e))
-    // this.setState({
-    //   cellInputStyle: {
-    //     width,
-    //     height,
-    //     left: cellLeft,
-    //     top: cellTop
-    //   }
-    // })
+    const { width, height, cellLeft, cellTop, cell, row, col } = this.position(e);
+    const cellContent = this.getCellValue(cell);
+
+    this.setState({
+      cellInput: {
+        style: {
+          width: width - 2,
+          height: height - 2,
+          left: cellLeft + 1,
+          top: cellTop + 1
+        },
+        value: cellContent?.value || '',
+        position: {row, col}
+      }
+    }, () => {
+      document.getElementsByClassName('excel-focus-input')[0].focus();
+    })
   }
 
   handleMouseDown(e) {
     // 忽略 鼠标右键触发的点击事件
     if (e.button === 2) return;
     this.mouseDownSign = true;
-
-    // this.setState((prevState) => ({
-    //   cellInputStyle: {
-    //     ...prevState.cellInputStyle,
-    //     left: -999,
-    //     top: -999
-    //   }
-    // }));
-
     const { x, y } = this.position(e);
 
     let start = null;
@@ -794,6 +807,29 @@ export default class Excel extends Component {
       },
     }));
   }
+
+  onCellInputBlur = (e) => {
+    const { cellInput, dataSource} = this.state;
+    const _dataSource = {...dataSource};
+    const {row, col} = cellInput.position || {};
+    if (row && col) {
+      _dataSource[row] = _dataSource[row] || {};
+      _dataSource[row][col] = {format: 'text', value: e.target.value};
+    }
+    this.setState({
+      dataSource: _dataSource,
+      cellInput: {
+        style: {
+          ...cellInput.style,
+          left: -999,
+          top: -999
+        },
+        value: '',
+        position: null,
+      }
+    }, () => this.paintInit());
+  }
+
   position(e) {
     const { clientX, clientY, currentTarget } = e;
     const offsetLeft =
@@ -863,11 +899,13 @@ export default class Excel extends Component {
       cellLeft,
     };
   }
+
   render() {
-    const { styles, cellInputStyle } = this.state;
+    const { styles, cellInput } = this.state;
     const { style, className } = this.props;
-    const _className = cx('canvas-wrap', className);
     const _style = { ...style, ...styles };
+    const _className = cx('canvas-wrap', className);
+
     return (
       <div
         className="excel-wrap-3l4uGQO"
@@ -883,20 +921,17 @@ export default class Excel extends Component {
             style={_style}
             className={_className}
           >
-            <canvas id="row-col-canvas" />
+            <canvas id="col-canvas" />
+            <canvas id="row-canvas" />
             <canvas id="content-canvas" />
-            
-            {/* <div style={{
-              position: 'absolute',
-              left: pageX,
-              top: pageY,
-              zIndex: 6
-            }}>1</div> */}
           </div>
           <Scroll className="scroll-y-wrap" direction="hoz" />
         </div>
         <Scroll className="scroll-x-wrap" direction="ver" />
-        <input className="excel-focus-input" style={cellInputStyle} />
+        {
+          cellInput.position && 
+          <input className="excel-focus-input" style={cellInput.style} defaultValue={cellInput.value} onBlur={this.onCellInputBlur} />
+        }
       </div>
     );
   }

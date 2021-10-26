@@ -15,7 +15,7 @@ $fff: #fff;
     canvas {
       position: absolute;
     }
-    #row-col-canvas {
+    #col-canvas, #row-canvas {
       z-index: 10;
     }
     #content-canvas {
@@ -31,6 +31,8 @@ $fff: #fff;
     height: 100%;
     border-left: 1px solid #989898;
     padding-top: 5px;
+    z-index: 10;
+    position: relative;
   }
   .excel-focus-cell {
     position: absolute;
@@ -44,6 +46,7 @@ $fff: #fff;
   position: relative;
   padding-right: 30px;
   padding-left: 50%;
+    z-index: 10;
   &::after {
     content: '';
     position: absolute;
@@ -54,12 +57,15 @@ $fff: #fff;
   }
 }
 .excel-focus-input {
+  background-color: #fff;
   position: absolute;
   z-index: 6;
   top: -999px;
   left: -999px;
   border: 0;
   outline: none;
-  padding: 5px;
-  // background-color: red;
+  padding: 3px;
+  color: #333;
+  font-family: 'PingFang SC';
+  font-size: 14px;
 }

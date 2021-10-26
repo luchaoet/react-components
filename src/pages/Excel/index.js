@@ -23,6 +23,9 @@ export default class ExcelCom extends React.Component {
           C: {format: 'string', value: 'C2'},
           D: {format: 'string', value: 'D2'},
           E: {format: 'string', value: 'E2'},
+        },
+        100: {
+          DD: {format: 'string', value: 'DD100'},
         }
       },
     }

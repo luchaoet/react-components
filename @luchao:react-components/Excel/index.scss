@@ -1,24 +1,71 @@
 $pink: #237245;
 $fff: #fff;
-.excel-wrap {
+.excel-wrap-3l4uGQO {
   width: 100%;
   height: 100%;
-  background-color: $fff;
-  overflow: hidden;
   position: relative;
-  canvas {
-    position: absolute;
+  .excel-canvas-wrap {
+    width: 100%;
+    height: calc(100% - 30px);
+    background-color: $fff;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+
+    canvas {
+      position: absolute;
+    }
+    #col-canvas, #row-canvas {
+      z-index: 10;
+    }
+    #content-canvas {
+      z-index: 5;
+    }
   }
-  #row-col-canvas {
-    z-index: 5;
+  .canvas-wrap {
+    width: calc(100% - 30px);
+    height: 100%;
   }
-  #content-canvas {
+  .scroll-y-wrap {
+    width: 30px;
+    height: 100%;
+    border-left: 1px solid #989898;
+    padding-top: 5px;
     z-index: 10;
+    position: relative;
+  }
+  .excel-focus-cell {
+    position: absolute;
+    border: 2px solid $pink;
+    outline: none;
+    z-index: 6;
   }
 }
-.excel-focus-cell {
+.scroll-x-wrap {
+  height: 30px;
+  position: relative;
+  padding-right: 30px;
+  padding-left: 50%;
+    z-index: 10;
+  &::after {
+    content: '';
+    position: absolute;
+    width: calc(100% - 30px);
+    border-top: 1px solid #989898;
+    top: 0;
+    left: 0;
+  }
+}
+.excel-focus-input {
+  background-color: #fff;
   position: absolute;
-  border: 2px solid $pink;
-  outline: none;
   z-index: 6;
+  top: -999px;
+  left: -999px;
+  border: 0;
+  outline: none;
+  padding: 3px;
+  color: #333;
+  font-family: 'PingFang SC';
+  font-size: 14px;
 }

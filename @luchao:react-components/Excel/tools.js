@@ -33,8 +33,6 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-// A -> 1 
-// 以GWW为例，则为G(6)*676+W(22)*26+W(22)*1=4650
 var Base26 = /*#__PURE__*/function () {
   function Base26() {
     _classCallCheck(this, Base26);
@@ -107,7 +105,7 @@ function drawLine(_ref) {
   context.lineWidth = lineWidth;
   context.strokeStyle = strokeStyle; // 线条末端形状
 
-  context.lineCap = "square";
+  context.lineCap = 'square';
   context.beginPath();
   context.moveTo(x1, y1);
   context.lineTo(x2, y2);
@@ -231,7 +229,8 @@ function tableToArray(table) {
       };
     });
   });
-}
+} // eslint-disable-next-line no-extend-native
+
 
 Array.prototype.bubbleSort = function () {
   var _this = _toConsumableArray(this);

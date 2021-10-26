@@ -27,22 +27,22 @@ class Base26 {
     'X',
     'Y',
     'Z',
-  ]
+  ];
   column(index) {
     // index 从 1 开始
     const _colTitle = (i) => {
       if (i <= 26) {
-        return this.words[i]
+        return this.words[i];
       }
       const floor = Math.floor(i / 26);
       const rem = i % 26;
       if (rem === 0) {
         // 处理26的倍数
-        return `${_colTitle(floor - 1)}${_colTitle(26)}`
+        return `${_colTitle(floor - 1)}${_colTitle(26)}`;
       } else {
-        return `${_colTitle(floor)}${this.words[rem]}`
+        return `${_colTitle(floor)}${this.words[rem]}`;
       }
-    }
+    };
 
     return _colTitle(index);
   }
@@ -50,20 +50,30 @@ class Base26 {
     if (/^[a-zA-Z]+$/.test(col)) {
       const _col = col.toUpperCase().split('').reverse();
       return _col.reduce((accumulator, current, index) => {
-        return accumulator + (current.charCodeAt() - 64) * Math.pow(26, index) 
-      }, 0)
+        return accumulator + (current.charCodeAt() - 64) * Math.pow(26, index);
+      }, 0);
     } else {
-      return -1
+      return -1;
     }
   }
 }
 
 export const base26 = new Base26();
 
-export const isFirefox = typeof navigator !== 'undefined' && navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+export const isFirefox =
+  typeof navigator !== 'undefined' &&
+  navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
 
 // 画线
-export function drawLine({ context, x1 = 0, y1 = 0, x2 = 0, y2 = 0, lineWidth = 1, strokeStyle = '#cecece' }) {
+export function drawLine({
+  context,
+  x1 = 0,
+  y1 = 0,
+  x2 = 0,
+  y2 = 0,
+  lineWidth = 1,
+  strokeStyle = '#cecece',
+}) {
   context.lineWidth = lineWidth;
   context.strokeStyle = strokeStyle;
   // 线条末端形状
@@ -76,20 +86,27 @@ export function drawLine({ context, x1 = 0, y1 = 0, x2 = 0, y2 = 0, lineWidth = 
 }
 
 // 矩形填充
-export function fillRect({context, x, y, width, height, fillStyle = '#f5f5f5'}) {
+export function fillRect({
+  context,
+  x,
+  y,
+  width,
+  height,
+  fillStyle = '#f5f5f5',
+}) {
   context.fillStyle = fillStyle;
   context.fillRect(x, y, width, height);
 }
 
 // 矩形边框
 export function strokeRect({
-  context, 
-  lineWidth = 1, 
-  strokeStyle = '#cecece', 
-  x = 0, 
-  y = 0, 
-  width, 
-  height
+  context,
+  lineWidth = 1,
+  strokeStyle = '#cecece',
+  x = 0,
+  y = 0,
+  width,
+  height,
 }) {
   context.lineWidth = lineWidth;
   context.strokeStyle = strokeStyle;
@@ -98,15 +115,15 @@ export function strokeRect({
 
 // 文本
 export function fillText({
-  context, 
-  globalCompositeOperation = 'source-over', 
-  font = '14px', 
-  fillStyle, 
-  textAlign = 'left', 
-  textBaseline = 'middle', 
-  text, 
-  x = 0, 
-  y = 0
+  context,
+  globalCompositeOperation = 'source-over',
+  font = '14px',
+  fillStyle,
+  textAlign = 'left',
+  textBaseline = 'middle',
+  text,
+  x = 0,
+  y = 0,
 }) {
   context.globalCompositeOperation = globalCompositeOperation;
   context.font = font;
@@ -128,21 +145,21 @@ export function rowHeight(i) {
 }
 
 export function handleFocusCells(start, end) {
-  let _start = start || {x: -1, y: -1};
-  let _end = end || {x: -1, y: -1};
+  let _start = start || { x: -1, y: -1 };
+  let _end = end || { x: -1, y: -1 };
 
   if (start && end) {
     // 起始结束位置方向有不同情况，将记录的起始结束单元格转换为左上->右下的方向，便于操作
     const _x = [start.x, end.x].bubbleSort();
     const _y = [start.y, end.y].bubbleSort();
-    _start = {x: _x[0] || 1, y: _y[0] || 1};
-    _end = {x: _x[1] || 1, y: _y[1] || 1};
+    _start = { x: _x[0] || 1, y: _y[0] || 1 };
+    _end = { x: _x[1] || 1, y: _y[1] || 1 };
   }
 
   return {
     start: _start,
-    end: _end
-  }
+    end: _end,
+  };
 }
 
 export function tableToArray(table) {
@@ -153,12 +170,11 @@ export function tableToArray(table) {
     return [...item.children].map((c) => {
       return {
         format: 'string',
-        value: c.innerText
-      }
+        value: c.innerText,
+      };
     });
-  })
+  });
 }
-
 
 // eslint-disable-next-line no-extend-native
 Array.prototype.bubbleSort = function () {
@@ -180,4 +196,4 @@ Array.prototype.bubbleSort = function () {
     }
   }
   return _this;
-}
+};

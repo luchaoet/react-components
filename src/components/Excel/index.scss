@@ -1,24 +1,65 @@
 $pink: #237245;
 $fff: #fff;
-.excel-wrap {
+.excel-wrap-3l4uGQO {
   width: 100%;
   height: 100%;
-  background-color: $fff;
-  overflow: hidden;
   position: relative;
-  canvas {
+  .excel-canvas-wrap {
+    width: 100%;
+    height: calc(100% - 30px);
+    background-color: $fff;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+
+    canvas {
+      position: absolute;
+    }
+    #row-col-canvas {
+      z-index: 10;
+    }
+    #content-canvas {
+      z-index: 5;
+    }
+  }
+  .canvas-wrap {
+    width: calc(100% - 30px);
+    height: 100%;
+  }
+  .scroll-y-wrap {
+    width: 30px;
+    height: 100%;
+    border-left: 1px solid #989898;
+    padding-top: 5px;
+  }
+  .excel-focus-cell {
     position: absolute;
-  }
-  #row-col-canvas {
-    z-index: 5;
-  }
-  #content-canvas {
-    z-index: 10;
+    border: 2px solid $pink;
+    outline: none;
+    z-index: 6;
   }
 }
-.excel-focus-cell {
+.scroll-x-wrap {
+  height: 30px;
+  position: relative;
+  padding-right: 30px;
+  padding-left: 50%;
+  &::after {
+    content: '';
+    position: absolute;
+    width: calc(100% - 30px);
+    border-top: 1px solid #989898;
+    top: 0;
+    left: 0;
+  }
+}
+.excel-focus-input {
   position: absolute;
-  border: 2px solid $pink;
-  outline: none;
   z-index: 6;
+  top: -999px;
+  left: -999px;
+  border: 0;
+  outline: none;
+  padding: 5px;
+  // background-color: red;
 }

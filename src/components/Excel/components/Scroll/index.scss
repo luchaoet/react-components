@@ -1,0 +1,64 @@
+.scroll-wrap--BIK7GDp {
+	background-color: #e6e6e6;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+.scroll-ver {
+	.bar-wrap {
+		width: 100%;
+		line-height: 1;
+		display: flex;
+	}
+}
+.scroll-hoz {
+	.bar-wrap {
+		height: 100%;
+	}
+}
+.bar-ver {
+	width: calc(100% - 30px);
+	background-color: #eaeaea;
+	span {
+		display: block;
+		width: 200px;
+		height: 100%;
+		background-color: #fff;
+		border: 1px solid #ababab;
+	}
+}
+
+.bar-hoz {
+	height: calc(100% - 30px);
+	background-color: #eaeaea;
+	span {
+		display: block;
+		width: 100%;
+		height: 200px;
+		background-color: #fff;
+		border: 1px solid #ababab;
+	}
+}
+
+.arrow-top {
+	background: no-repeat url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAYAAABy6+R8AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAadEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjExR/NCNwAAAClJREFUKFNjGEmgvLz8P5RJHABpgGGoEH6ArIEojdg0wDBUyShAAAYGAHSXJkH1wN/VAAAAAElFTkSuQmCC);
+}
+.arrow-bottom {
+	background: no-repeat url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAYAAABy6+R8AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAadEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjExR/NCNwAAACRJREFUKFNjGAVYQHl5+X9cGKoEOyBZAwyQrAEGSNYwpAEDAwBvhSZBmzrLGgAAAABJRU5ErkJggg==)
+}
+
+.arrow-left {
+	background: no-repeat url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAYAAABy6+R8AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAadEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjExR/NCNwAAADBJREFUKFNjGMKgvLz8P5RJHABpIEkTTAPRmpA1EK0JBMjSBAJkaQIBsjQNNGBgAABe7iZBxoz5vwAAAABJRU5ErkJggg==)
+}
+
+.arrow-right {
+	background: no-repeat url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAYAAABy6+R8AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAadEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjExR/NCNwAAAC5JREFUKFNjGIKgvLz8P5RJPABpIlkjTBNJGpE1Ea2RZA0gQLIGECBZw2ACDAwAhS4mQZAuqGcAAAAASUVORK5CYII=)
+}
+
+.arrow-wrap {
+	width: 15px;
+	height: 15px;
+	position: relative;
+	border: 1px solid #ababab;
+	background-color: #fff;
+}

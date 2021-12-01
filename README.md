@@ -49,10 +49,15 @@ import { Scroll } from "@luchao/react-components"
 ```react
 import { Switch } from "@luchao/react-components"
 
+// 可同时出现多个相同的 case 或 default
+// Switch 的子节点必须含有 case 或 default属性，否则无效
 <Switch expression={expression}>
-    <div case='A'>A</div>
+    <div case='A'>A1</div>
+    <div case='A'>A2</div>
     <div case='B'>B</div>
     <div case='C'>C</div>
+    <div default>default1</div>
+    <div default>default2</div>
 </Switch>
 ```
 

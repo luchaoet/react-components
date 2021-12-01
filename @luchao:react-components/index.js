@@ -3,6 +3,12 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+Object.defineProperty(exports, "Tree", {
+  enumerable: true,
+  get: function get() {
+    return _Tree["default"];
+  }
+});
 Object.defineProperty(exports, "Excel", {
   enumerable: true,
   get: function get() {
@@ -45,6 +51,8 @@ Object.defineProperty(exports, "keyboardShortcut", {
     return _keyboardShortcut["default"];
   }
 });
+
+var _Tree = _interopRequireDefault(require("./Tree"));
 
 var _Excel = _interopRequireDefault(require("./Excel"));
 

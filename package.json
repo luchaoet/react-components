@@ -5,6 +5,7 @@
   "dependencies": {
     "@alifd/next": "^1.19.4",
     "@alifd/theme-design-pro": "^0.x",
+    "@luchao/base-utils": "^1.0.4",
     "@luchao/react-components": "^1.0.7",
     "moment": "^2.24.0",
     "react": "^16.4.1",

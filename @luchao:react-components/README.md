@@ -76,7 +76,7 @@ import { DraggleLayout } from "@luchao/react-components"
 
 ```react
 import { Template } from "@luchao/react-components"
-// component 渲染标签或组件
+// component 渲染标签或组件，默认div标签
 // show 渲染条件
 // 其他props 全部会传给component对应的标签或组件
 

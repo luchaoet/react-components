@@ -7,6 +7,8 @@ import Excel from '@/pages/Excel'
 import Tree from '@/pages/Tree'
 import Switch from '@/pages/Switch'
 import Template from '@/pages/Template'
+import Button from '@/pages/Button'
+import CustomFilters from '@/pages/CustomFilters'
 
 const routerConfig: IRouterConfig[] = [
   {
@@ -34,14 +36,10 @@ const routerConfig: IRouterConfig[] = [
         path: '/tree',
         component: Tree,
       },
-      {
-        path: '/switch',
-        component: Switch,
-      },
-      {
-        path: '/template',
-        component: Template,
-      },
+      { path: '/switch', component: Switch },
+      { path: '/template', component: Template },
+      { path: '/button', component: Button },
+      { path: '/filter', component: CustomFilters },
     ],
   },
 ];

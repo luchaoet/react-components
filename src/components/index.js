@@ -7,5 +7,20 @@ import Switch from './Switch';
 import DraggleLayout from './DraggleLayout';
 import keyboardShortcut from './keyboardShortcut';
 import Template from './Template';
+import Button from './Button';
+import CustomFilters from './CustomFilters';
 
-export { Tree, IfElse, MapDom, Scroll, Switch, Excel, DraggleLayout, keyboardShortcut, Template };
+
+export { 
+  Tree, 
+  IfElse, 
+  MapDom, 
+  Scroll, 
+  Switch, 
+  Excel, 
+  DraggleLayout, 
+  keyboardShortcut, 
+  Template, 
+  Button, 
+  CustomFilters 
+};

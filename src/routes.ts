@@ -6,6 +6,7 @@ import Home from '@/pages/Home'
 import Excel from '@/pages/Excel'
 import Tree from '@/pages/Tree'
 import Switch from '@/pages/Switch'
+import Template from '@/pages/Template'
 
 const routerConfig: IRouterConfig[] = [
   {
@@ -36,6 +37,10 @@ const routerConfig: IRouterConfig[] = [
       {
         path: '/switch',
         component: Switch,
+      },
+      {
+        path: '/template',
+        component: Template,
       },
     ],
   },

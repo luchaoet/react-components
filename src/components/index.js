@@ -6,5 +6,6 @@ import Scroll from './Scroll';
 import Switch from './Switch';
 import DraggleLayout from './DraggleLayout';
 import keyboardShortcut from './keyboardShortcut';
+import Template from './Template';
 
-export { Tree, IfElse, MapDom, Scroll, Switch, Excel, DraggleLayout, keyboardShortcut };
+export { Tree, IfElse, MapDom, Scroll, Switch, Excel, DraggleLayout, keyboardShortcut, Template };

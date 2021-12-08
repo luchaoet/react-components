@@ -51,6 +51,12 @@ Object.defineProperty(exports, "keyboardShortcut", {
     return _keyboardShortcut["default"];
   }
 });
+Object.defineProperty(exports, "Template", {
+  enumerable: true,
+  get: function get() {
+    return _Template["default"];
+  }
+});
 
 var _Tree = _interopRequireDefault(require("./Tree"));
 
@@ -67,5 +73,7 @@ var _Switch = _interopRequireDefault(require("./Switch"));
 var _DraggleLayout = _interopRequireDefault(require("./DraggleLayout"));
 
 var _keyboardShortcut = _interopRequireDefault(require("./keyboardShortcut"));
+
+var _Template = _interopRequireDefault(require("./Template"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }

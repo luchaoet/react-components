@@ -49,10 +49,15 @@ import { Scroll } from "@luchao/react-components"
 ```react
 import { Switch } from "@luchao/react-components"
 
+// 可同时出现多个相同的 case 或 default
+// Switch 的子节点必须含有 case 或 default属性，否则无效
 <Switch expression={expression}>
-    <div case='A'>A</div>
+    <div case='A'>A1</div>
+    <div case='A'>A2</div>
     <div case='B'>B</div>
     <div case='C'>C</div>
+    <div default>default1</div>
+    <div default>default2</div>
 </Switch>
 ```
 
@@ -65,4 +70,17 @@ import { DraggleLayout } from "@luchao/react-components"
     <DraggleLayout.A style={{backgroundColor: '#4caf50'}}>A</DraggleLayout.A>
     <DraggleLayout.B style={{backgroundColor: '#009688'}}>B</DraggleLayout.B>
 </DraggleLayout>
+```
+
+## Template 条件渲染
+
+```react
+import { Template } from "@luchao/react-components"
+// component 渲染标签或组件
+// show 渲染条件
+// 其他props 全部会传给component对应的标签或组件
+
+<Template component='span' show={显示条件}>
+test
+</Template>
 ```

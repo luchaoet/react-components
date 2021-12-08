@@ -71,3 +71,16 @@ import { DraggleLayout } from "@luchao/react-components"
     <DraggleLayout.B style={{backgroundColor: '#009688'}}>B</DraggleLayout.B>
 </DraggleLayout>
 ```
+
+## Template 条件渲染
+
+```react
+import { Template } from "@luchao/react-components"
+// component 渲染标签或组件
+// show 渲染条件
+// 其他props 全部会传给component对应的标签或组件
+
+<Template component='span' show={显示条件}>
+test
+</Template>
+```

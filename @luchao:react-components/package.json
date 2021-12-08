@@ -1,6 +1,6 @@
 {
   "name": "@luchao/react-components",
-  "version": "1.0.20",
+  "version": "1.0.22",
   "description": "React组件",
   "main": "index.js",
   "scripts": {
@@ -13,6 +13,10 @@
   "author": "luchaoet",
   "license": "ISC",
   "directories": {},
+  "dependencies": {
+    "@alifd/next": "^1.19.4",
+    "@luchao/base-utils": "^1.0.4"
+  },
   "keywords": [
     "react",
     "components"

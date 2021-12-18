@@ -23,6 +23,10 @@ require("@alifd/next/lib/field/style");
 
 var _field = _interopRequireDefault(require("@alifd/next/lib/field"));
 
+require("@alifd/next/lib/cascader-select/style");
+
+var _cascaderSelect = _interopRequireDefault(require("@alifd/next/lib/cascader-select"));
+
 require("@alifd/next/lib/switch/style");
 
 var _switch = _interopRequireDefault(require("@alifd/next/lib/switch"));
@@ -30,10 +34,6 @@ var _switch = _interopRequireDefault(require("@alifd/next/lib/switch"));
 require("@alifd/next/lib/number-picker/style");
 
 var _numberPicker = _interopRequireDefault(require("@alifd/next/lib/number-picker"));
-
-require("@alifd/next/lib/checkbox/style");
-
-var _checkbox = _interopRequireDefault(require("@alifd/next/lib/checkbox"));
 
 require("@alifd/next/lib/select/style");
 
@@ -53,12 +53,21 @@ var _form = _interopRequireDefault(require("@alifd/next/lib/form"));
 
 var _react = _interopRequireDefault(require("react"));
 
-var _excluded = ["name", "title", "tips", "required", "component", "help", "pattern", "patternMessage", "validator", "disabled", "hidden"],
-    _excluded2 = ["children", "onClick"];
+var _baseUtils = require("@luchao/base-utils");
+
+require("./index.scss");
+
+var _excluded = ["name", "label", "_label", "required", "requiredMessage", "component", "help", "pattern", "patternMessage", "validator", "disabled", "hidden", "dataSource", "optionValue", "optionLabel", "value", "defaultValue", "readOnly"],
+    _excluded2 = ["children", "onClick", "loading"],
+    _excluded3 = ["okLoading", "labelAlign", "style", "isPreview", "formItemLayout", "propsConfig", "size"];
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
 function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
 
@@ -96,17 +105,15 @@ var _formItemLayout = {
     span: 14
   }
 };
-
-var empty = function empty() {};
-
 var components = {
   Input: _input["default"],
   Select: _select["default"],
   Radio: RadioGroup,
   'Input.Password': _input["default"].Password,
-  Checkbox: _checkbox["default"],
   NumberPicker: _numberPicker["default"],
-  Switch: _switch["default"]
+  Switch: _switch["default"],
+  'Input.TextArea': _input["default"].TextArea,
+  CascaderSelect: _cascaderSelect["default"]
 };
 
 var FieldForm = /*#__PURE__*/function (_React$Component) {
@@ -115,8 +122,6 @@ var FieldForm = /*#__PURE__*/function (_React$Component) {
   var _super = _createSuper(FieldForm);
 
   function FieldForm(_props) {
-    var _props$node;
-
     var _this;
 
     _classCallCheck(this, FieldForm);
@@ -124,38 +129,23 @@ var FieldForm = /*#__PURE__*/function (_React$Component) {
     _this = _super.call(this, _props);
 
     _defineProperty(_assertThisInitialized(_this), "field", new _field["default"](_assertThisInitialized(_this), {
-      // onChange: (name, value) => {
-      // 	const values = this.field.getValues();
-      // 	this.props.node.setValues(values)
-      // 	const errors = this.field.getErrors();
-      // 	console.log(errors)
-      // 	this.props.node.setErrors(errors)
-      // },
-      values: _this.props.node.getValues()
+      onChange: function onChange(name, value) {
+        var _this$props$onChange = _this.props.onChange,
+            _onChange = _this$props$onChange === void 0 ? function () {} : _this$props$onChange;
+
+        _onChange(name, value, _this.field);
+      }
     }));
-
-    _defineProperty(_assertThisInitialized(_this), "onChange", function (name, v) {
-      _this.field.setValue(name, v);
-
-      var values = _this.field.getValues();
-
-      var errors = _this.field.getErrors();
-
-      _this.state.node.setAttributes({
-        values: values,
-        errors: errors
-      }); // console.log({values, errors})
-
-    });
 
     _defineProperty(_assertThisInitialized(_this), "renderLabel", function (props) {
       var tips = props.tips,
-          title = props.title;
-      return /*#__PURE__*/_react["default"].createElement("div", {
+          label = props.label;
+      return label && /*#__PURE__*/_react["default"].createElement("div", {
         style: {
           display: 'inline-flex'
         }
-      }, /*#__PURE__*/_react["default"].createElement("p", null, title), tips && /*#__PURE__*/_react["default"].createElement(_balloon["default"], {
+      }, /*#__PURE__*/_react["default"].createElement("p", null, label), tips && /*#__PURE__*/_react["default"].createElement(_balloon["default"], {
+        align: "t",
         trigger: /*#__PURE__*/_react["default"].createElement(_icon["default"], {
           size: "small",
           type: "help"
@@ -164,14 +154,44 @@ var FieldForm = /*#__PURE__*/function (_React$Component) {
       }, tips));
     });
 
+    _defineProperty(_assertThisInitialized(_this), "renderHelp", function (helps) {
+      var isPreview = _this.props.isPreview;
+      if (isPreview || !helps) return null;
+
+      if ((0, _baseUtils.type)(helps) === 'array') {
+        return /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, helps.map(function (item, index) {
+          return /*#__PURE__*/_react["default"].createElement("div", {
+            className: "field-form-help",
+            key: index,
+            dangerouslySetInnerHTML: {
+              __html: item
+            }
+          });
+        }));
+      } else {
+        return /*#__PURE__*/_react["default"].createElement("div", {
+          className: "field-form-help",
+          dangerouslySetInnerHTML: {
+            __html: helps
+          }
+        });
+      }
+    });
+
     _defineProperty(_assertThisInitialized(_this), "renderFormItem", function () {
-      var propsConfig = _this.state.propsConfig;
+      var _this$props = _this.props,
+          _this$props$propsConf = _this$props.propsConfig,
+          propsConfig = _this$props$propsConf === void 0 ? [] : _this$props$propsConf,
+          isPreview = _this$props.isPreview;
       var getValues = _this.field.getValues;
       return propsConfig.map(function (props, index) {
+        var _ref;
+
         var name = props.name,
-            title = props.title,
-            tips = props.tips,
+            label = props.label,
+            _label = props._label,
             required = props.required,
+            requiredMessage = props.requiredMessage,
             component = props.component,
             help = props.help,
             pattern = props.pattern,
@@ -181,21 +201,32 @@ var FieldForm = /*#__PURE__*/function (_React$Component) {
             disabled = _props$disabled === void 0 ? false : _props$disabled,
             _props$hidden = props.hidden,
             hidden = _props$hidden === void 0 ? false : _props$hidden,
+            dataSource = props.dataSource,
+            _props$optionValue = props.optionValue,
+            optionValue = _props$optionValue === void 0 ? 'value' : _props$optionValue,
+            _props$optionLabel = props.optionLabel,
+            optionLabel = _props$optionLabel === void 0 ? 'label' : _props$optionLabel,
+            value = props.value,
+            defaultValue = props.defaultValue,
+            readOnly = props.readOnly,
             options = _objectWithoutProperties(props, _excluded); // 组件id或自定义组件
 
 
         var Com = typeof component === 'string' ? components[component] : component; // 空值提示
 
-        var requiredMessage = required ? "".concat(title, " \u662F\u5FC5\u586B\u5B57\u6BB5") : null; // 自定义校验函数或正则
+        var _requiredMessage = required ? requiredMessage || "".concat(label || _label, " \u662F\u5FC5\u586B\u53C2\u6570") : null; // 自定义校验函数或正则
+
 
         var _validator = null;
 
         if (validator) {
           _validator = validator.bind(_assertThisInitialized(_this), _this.field, props);
         } else if (pattern) {
-          _validator = function _validator(rule, value, callback) {
-            if (!value && !required) callback();
-            return pattern.test(value) ? callback() : callback(patternMessage || "".concat(title, " \u683C\u5F0F\u9519\u8BEF"));
+          _validator = function _validator(r, v, c) {
+            // 非必填不校验空值
+            if (!v && !required) return c(); // 有值有正则便校验
+
+            return pattern.test(v) ? c() : c(patternMessage || '格式错误');
           };
         }
 
@@ -208,112 +239,152 @@ var FieldForm = /*#__PURE__*/function (_React$Component) {
 
         if (_hidden) return null; // label
 
-        var _label = _this.renderLabel(props);
+        var renderLabel = _this.renderLabel(props); // 处理 dataSource
+
+
+        var _dataSource = dataSource ? {
+          dataSource: dataSource.map(function (v) {
+            return _objectSpread(_objectSpread({}, v), {}, {
+              value: v[optionValue],
+              label: v[optionLabel]
+            });
+          })
+        } : {}; // 值处理 不允许 null 
+
+
+        var _defaultValue = (_ref = value !== null && value !== void 0 ? value : defaultValue) !== null && _ref !== void 0 ? _ref : undefined;
 
         return /*#__PURE__*/_react["default"].createElement(FormItem, {
-          label: _label,
-          required: required,
-          requiredMessage: requiredMessage,
+          label: renderLabel,
+          required: required && !isPreview,
+          requiredMessage: _requiredMessage,
           key: index,
           fullWidth: true,
-          validator: _validator
-        }, /*#__PURE__*/_react["default"].createElement(Com, _extends({
+          validator: _validator // size={size}
+          ,
+          className: "field-form-label"
+        }, /*#__PURE__*/_react["default"].createElement(Com, _extends({}, _dataSource, options, {
           name: name,
-          disabled: _disabled
-        }, options, {
-          onChange: function onChange(v) {
-            return _this.onChange(name, v);
-          }
-        })), help && /*#__PURE__*/_react["default"].createElement("p", null, help));
+          defaultValue: _defaultValue,
+          disabled: _disabled,
+          isPreview: isPreview
+        })), _this.renderHelp(help));
       });
     });
 
     _defineProperty(_assertThisInitialized(_this), "renderFooter", function () {
-      var _this$props = _this.props,
-          _this$props$footer = _this$props.footer,
-          footer = _this$props$footer === void 0 ? {} : _this$props$footer,
-          _this$props$onSubmit = _this$props.onSubmit,
-          onSubmit = _this$props$onSubmit === void 0 ? empty : _this$props$onSubmit,
-          _this$props$onReset = _this$props.onReset,
-          onReset = _this$props$onReset === void 0 ? empty : _this$props$onReset;
+      var _footer$ok, _footer$okStyle, _footer$cancel, _footer$cancelStyle;
+
+      var _this$props2 = _this.props,
+          _this$props2$footer = _this$props2.footer,
+          footer = _this$props2$footer === void 0 ? {} : _this$props2$footer,
+          _this$props2$onSubmit = _this$props2.onSubmit,
+          onSubmit = _this$props2$onSubmit === void 0 ? _baseUtils.empty : _this$props2$onSubmit,
+          _this$props2$onReset = _this$props2.onReset,
+          onReset = _this$props2$onReset === void 0 ? _baseUtils.empty : _this$props2$onReset,
+          okLoading = _this$props2.okLoading,
+          labelAlign = _this$props2.labelAlign;
+      var submitDisabled = footer.submitDisabled,
+          restDisabled = footer.restDisabled;
       if (footer === false) return null;
-      var actions = footer.actions || ['ok', 'reset'];
-      var align = footer.align || 'left';
+      var aligin = footer.aligin || 'left';
       var before = footer.before || [];
       var after = footer.after || [];
+      var ok = (_footer$ok = footer.ok) !== null && _footer$ok !== void 0 ? _footer$ok : '确定';
+      var okStyle = (_footer$okStyle = footer.okStyle) !== null && _footer$okStyle !== void 0 ? _footer$okStyle : {};
+      var cancel = (_footer$cancel = footer.cancel) !== null && _footer$cancel !== void 0 ? _footer$cancel : '取消';
+      var cancelStyle = (_footer$cancelStyle = footer.cancelStyle) !== null && _footer$cancelStyle !== void 0 ? _footer$cancelStyle : {};
+      var size = footer.size;
+      var okProps = footer.okProps || {};
+      var cancelProps = footer.cancelProps || {};
       var buttons = {
-        ok: /*#__PURE__*/_react["default"].createElement(_form["default"].Submit, {
-          key: "ok",
+        ok: /*#__PURE__*/_react["default"].createElement(_form["default"].Submit, _extends({
+          loading: okLoading,
+          disabled: submitDisabled,
+          style: okStyle,
           validate: true,
-          type: "primary",
+          type: "primary"
+        }, okProps, {
           onClick: function onClick(v, e) {
             return onSubmit(v, e);
           }
-        }, "\u786E\u5B9A"),
-        reset: /*#__PURE__*/_react["default"].createElement(_form["default"].Reset, {
-          key: "reset",
-          onClick: function onClick() {
-            return onReset();
-          }
-        }, "\u53D6\u6D88")
+        }), ok),
+        cancel: /*#__PURE__*/_react["default"].createElement(_form["default"].Reset, _extends({
+          size: size,
+          disabled: restDisabled,
+          style: cancelStyle
+        }, cancelProps, {
+          onClick: onReset
+        }), cancel)
       };
       return /*#__PURE__*/_react["default"].createElement(FormItem, {
-        label: " ",
+        label: labelAlign === 'top' ? '' : ' ',
         style: {
-          textAlign: align
-        }
-      }, _this.footerPushButtons(before), actions.map(function (v) {
-        return buttons[v];
-      }), _this.footerPushButtons(after));
+          textAlign: aligin
+        },
+        size: size,
+        className: "field-form-buttons"
+      }, _this.footerPushButtons(before), ok && buttons.ok, cancel && buttons.cancel, _this.footerPushButtons(after));
     });
 
     _defineProperty(_assertThisInitialized(_this), "footerPushButtons", function (btns) {
+      var _this$props$size = _this.props.size,
+          size = _this$props$size === void 0 ? 'medium' : _this$props$size;
       return btns.map(function (btn, index) {
         var children = btn.children,
             _btn$onClick = btn.onClick,
-            _onClick = _btn$onClick === void 0 ? empty : _btn$onClick,
+            _onClick = _btn$onClick === void 0 ? _baseUtils.empty : _btn$onClick,
+            loading = btn.loading,
             options = _objectWithoutProperties(btn, _excluded2);
 
         return /*#__PURE__*/_react["default"].createElement(_button["default"], _extends({
           key: index,
+          loading: loading,
           onClick: function onClick() {
             return _onClick(_this.field);
           }
-        }, options), children);
+        }, options, {
+          size: size
+        }), children);
       });
     });
 
-    _this.state = {
-      node: _props.node,
-      propsConfig: (_props === null || _props === void 0 ? void 0 : (_props$node = _props.node) === null || _props$node === void 0 ? void 0 : _props$node.initProps) || []
-    };
+    _this.state = {};
     return _this;
   }
 
   _createClass(FieldForm, [{
     key: "componentWillUnmount",
-    value: function componentWillUnmount() {// const node = this.state.node;
-      // this.field.validate((errors, values) => {
-      // 	node.setAttributes({values, errors})
-      // });
+    value: function componentWillUnmount() {
+      // 改写setState方法
+      this.setState = function () {
+        return false;
+      };
     }
   }, {
     key: "render",
     value: function render() {
       var field = this.field,
           props = this.props;
-      var labelAlign = props.labelAlign,
-          node = props.node,
+
+      var okLoading = props.okLoading,
+          labelAlign = props.labelAlign,
           style = props.style,
           isPreview = props.isPreview,
           _props$formItemLayout = props.formItemLayout,
-          formItemLayout = _props$formItemLayout === void 0 ? _formItemLayout : _props$formItemLayout;
+          formItemLayout = _props$formItemLayout === void 0 ? _formItemLayout : _props$formItemLayout,
+          propsConfig = props.propsConfig,
+          _props$size = props.size,
+          size = _props$size === void 0 ? 'medium' : _props$size,
+          options = _objectWithoutProperties(props, _excluded3);
+
       return /*#__PURE__*/_react["default"].createElement(_form["default"], _extends({
         field: field,
         style: style,
         labelAlign: labelAlign,
-        isPreview: isPreview
-      }, formItemLayout), this.renderFormItem(), this.renderFooter());
+        isPreview: isPreview,
+        size: size
+      }, formItemLayout, options), this.renderFormItem(), !isPreview && this.renderFooter());
     }
   }]);
 

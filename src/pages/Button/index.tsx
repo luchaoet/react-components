@@ -11,7 +11,7 @@ const ButtonPage = () => {
             closeLoading()
           }, 2000);
         }}
-      >12312
+      >Loading Button
       </Button>
     </div>
   );

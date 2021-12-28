@@ -2,10 +2,10 @@ import React, { createElement } from 'react';
 
 export default class Template extends React.Component {
   render() {
-    const { component = 'div', show = true, children, ...reset} = this.props;
-    const el = show && createElement(
+    const { component = 'div', show = true, children, ...others} = this.props;
+    const el = !!show && createElement(
       component,
-      reset,
+      others,
       children
     );
     return el;

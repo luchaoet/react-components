@@ -59,9 +59,9 @@ var Template = /*#__PURE__*/function (_React$Component) {
           _this$props$show = _this$props.show,
           show = _this$props$show === void 0 ? true : _this$props$show,
           children = _this$props.children,
-          reset = _objectWithoutProperties(_this$props, _excluded);
+          others = _objectWithoutProperties(_this$props, _excluded);
 
-      var el = show && /*#__PURE__*/(0, _react.createElement)(component, reset, children);
+      var el = !!show && /*#__PURE__*/(0, _react.createElement)(component, others, children);
       return el;
     }
   }]);

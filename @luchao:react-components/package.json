@@ -1,6 +1,6 @@
 {
   "name": "@luchao/react-components",
-  "version": "1.0.24",
+  "version": "1.0.25",
   "description": "React组件",
   "main": "index.js",
   "scripts": {
@@ -15,7 +15,7 @@
   "directories": {},
   "dependencies": {
     "@alifd/next": "^1.19.4",
-    "@luchao/base-utils": "^1.0.3"
+    "@luchao/base-utils": "^1.0.5"
   },
   "keywords": [
     "react",

@@ -176,6 +176,19 @@ export function tableToArray(table) {
   });
 }
 
+export function arrayToTable(array) {
+  return `
+  <meta charset='utf-8'>
+  <table>
+      <tbody>
+          <tr>
+              <td>更多开发工具</td>
+          </tr>
+      </tbody>
+  </table>
+  `
+}
+
 // eslint-disable-next-line no-extend-native
 Array.prototype.bubbleSort = function () {
   const _this = [...this];

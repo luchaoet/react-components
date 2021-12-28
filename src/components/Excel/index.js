@@ -12,6 +12,7 @@ import {
   drawLine,
   handleFocusCells,
   tableToArray,
+  arrayToTable,
   base26,
 } from './tools';
 import './index.scss';
@@ -74,13 +75,16 @@ export default class Excel extends Component {
         e.preventDefault();
         console.log('右键菜单');
       },
-      copy: () => {
+      copy: (e) => {
+        e.preventDefault();
         const { focusCells } = this.state;
         const { start, end } = handleFocusCells(
           focusCells.start,
           focusCells.end
         );
         console.log(start, end);
+        const str = arrayToTable();
+        e.clipboardData.setData('text/html', str)
       },
       paste: (e) => {
         if (e.clipboardData || e.originalEvent) {
@@ -89,7 +93,7 @@ export default class Excel extends Component {
           // 检查是否复制了excel内容
           const html = clipboardData.getData('text/html');
           let result = tableToArray(html);
-          // 复制的字符串内容
+          // 复制的不是表格，是单纯的字符串内容
           if (result.length === 0) {
             result = [
               [{ format: 'string', value: clipboardData.getData('text') }],
@@ -115,8 +119,8 @@ export default class Excel extends Component {
     if (startCell) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const [_, col, row] = startCell.match(/([A-Z]+)([0-9]+)/);
-      const _col = base26.index(col) - 1;
-      const _row = Number(row) - 1;
+      const _col = base26.index(col);
+      const _row = Number(row);
       const dataSource = {...this.state.dataSource};
       content.forEach((rowContent, rowIndex) => {
         if (rowContent.length === 0) {
@@ -126,7 +130,7 @@ export default class Excel extends Component {
         }
         rowContent.forEach((colCotent, colIndex) => {
           if (!dataSource[rowIndex + _row]) dataSource[rowIndex + _row] = [];
-          dataSource[rowIndex + _row][colIndex + _col] = colCotent;
+          dataSource[rowIndex + _row][base26.column(colIndex + _col)] = colCotent;
         });
       });
       this.onSetDataSourceAndPaintInit(dataSource);

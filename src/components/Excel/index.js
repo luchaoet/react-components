@@ -14,6 +14,7 @@ import {
   tableToArray,
   arrayToTable,
   base26,
+  handleColumnNames,
 } from './tools';
 import './index.scss';
 
@@ -35,24 +36,28 @@ export default class Excel extends Component {
     this.rowHeight = rowHeight.bind(this);
     this.position = this.position.bind(this);
     this.handleWheel = this.handleWheel.bind(this);
+
+    const cellWidth = props.cellWidth || this.defaultConfig.cellWidth;
+    const cellHeight = props.cellHeight || this.defaultConfig.cellHeight;
+    const columnNames = handleColumnNames(props.columnNames);
     this.state = {
       // 单元格默认宽度
-      cellWidth: props.cellWidth || this.defaultConfig.cellWidth,
+      cellWidth,
       // 单元格默认高度
-      cellHeight: props.cellHeight || this.defaultConfig.cellHeight,
+      cellHeight,
       // 列头高度
       colHeight: this.defaultConfig.colHeight,
       // 行头宽度
       rowWidth: this.defaultConfig.rowWidth,
       // 列宽
       widths: {
-        A: 200,
+        // A: 200,
       },
       // 行高
       heights: {
-        1: 80,
-        2: 50,
-        5: 40,
+        // 1: 80,
+        // 2: 50,
+        // 5: 40,
       },
       // 单元格输入框样式
       cellInput: { style: {}, value: '', position: null },
@@ -67,6 +72,8 @@ export default class Excel extends Component {
         end: null,
       },
       dataSource: props.dataSource,
+      // 列 别名
+      columnNames,
     };
   }
   onkeydown() {
@@ -496,7 +503,7 @@ export default class Excel extends Component {
    * @param {*} end 结束单元格的索引
    */
   paintCol(ctx, x, start, end, w) {
-    const { rowWidth, colHeight, focusCells } = this.state;
+    const { rowWidth, colHeight, focusCells, columnNames } = this.state;
     // 先擦除后绘制
     ctx.clearRect(0, 0, w, colHeight - 1);
     let startLeft = x + rowWidth;
@@ -564,12 +571,17 @@ export default class Excel extends Component {
         height: colHeight - 0.5,
       });
       // 文本
+      const alp = base26.column(index);
+      // 列的别名
+      const columnName = columnNames[alp] || '';
+      const fontSize = columnName ? '14px' : '16px';
+      const text = columnName ? `${alp} ${columnName}` : alp;
       fillText({
         context: ctx,
-        font: '16px PingFang SC',
+        font: `${fontSize} PingFang SC`,
         fillStyle: color,
         textAlign: 'left',
-        text: base26.column(index),
+        text,
         x: startPointX + 5,
         y: colHeight / 2,
       });
@@ -690,6 +702,7 @@ export default class Excel extends Component {
 
   // 双击编辑单元格
   handleDoubleClick(e) {
+    if (e.target.id !== 'content-canvas') return;
     const { width, height, cellLeft, cellTop, cell, row, col } = this.position(e);
     const cellContent = this.getCellValue(cell);
 
@@ -712,6 +725,7 @@ export default class Excel extends Component {
   handleMouseDown(e) {
     // 忽略 鼠标右键触发的点击事件
     if (e.button === 2) return;
+    if (e.target.tagName.toLowerCase() !== 'canvas') return;
     this.mouseDownSign = true;
     const { x, y } = this.position(e);
 
@@ -760,28 +774,6 @@ export default class Excel extends Component {
       const focusCells = { ...this.state.focusCells };
       // 记录起始与结束单元格
       focusCells[focusCells.start ? 'end' : 'start'] = { x, y };
-
-      // const { startColIndex, endColIndex, startRowIndex, endRowIndex } =
-      //   this.standard;
-      // let { scrollLeft, scrollTop } = this.state;
-      // if (focusCells.end.x >= endColIndex - 2) {
-      //   // 向左拖拉选中
-      //   const col = base26.column(startColIndex + 1);
-      //   scrollLeft += this.colWidth(col);
-      // } else if (focusCells.end.x <= startColIndex + 2) {
-      //   // 向右拖拉选中
-      //   const col = base26.column(startColIndex);
-      //   const _scrollLeft = scrollLeft - this.colWidth(col);
-      //   scrollLeft = _scrollLeft >= 0 ? _scrollLeft : 0;
-      // }
-      // if (focusCells.end.y > endRowIndex - 4) {
-      //   // 向下拖拉选中
-      //   scrollTop += 100;
-      // } else if (focusCells.end.y <= startRowIndex + 4) {
-      //   // 向上拖拉选中
-      //   const _scrollTop = scrollTop - 100;
-      //   scrollTop = _scrollTop >= 0 ? _scrollTop : 0;
-      // }
 
       this.setState({ 
         focusCells, 
@@ -913,7 +905,6 @@ export default class Excel extends Component {
     return (
       <div
         className="excel-wrap-3l4uGQO"
-        onDoubleClick={(e) => this.handleDoubleClick(e)}
         onMouseDown={(e) => this.handleMouseDown(e)}
         onMouseUp={(e) => this.handleMouseUp(e)}
         onMouseMove={(e) => this.handleMouseMove(e)}
@@ -927,7 +918,10 @@ export default class Excel extends Component {
           >
             <canvas id="col-canvas" />
             <canvas id="row-canvas" />
-            <canvas id="content-canvas" />
+            <canvas 
+              id="content-canvas" 
+              onDoubleClick={(e) => this.handleDoubleClick(e)} // 单元格双击编辑
+            />
           </div>
           <Scroll className="scroll-y-wrap" direction="hoz" />
         </div>

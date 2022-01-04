@@ -9,6 +9,7 @@ import keyboardShortcut from './keyboardShortcut';
 import Template from './Template';
 import Button from './Button';
 import CustomFilters from './CustomFilters';
+import Table from './Table';
 
 
 export { 
@@ -22,5 +23,6 @@ export {
   keyboardShortcut, 
   Template, 
   Button, 
-  CustomFilters 
+  CustomFilters,
+  Table,
 };

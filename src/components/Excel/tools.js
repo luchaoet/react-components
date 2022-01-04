@@ -57,7 +57,6 @@ class Base26 {
     }
   }
 }
-
 export const base26 = new Base26();
 
 export const isFirefox =
@@ -210,3 +209,34 @@ Array.prototype.bubbleSort = function () {
   }
   return _this;
 };
+
+const class2type = {
+  '[object Array]': 'array',
+  '[object Boolean]': 'boolean',
+  '[object Date]': 'date',
+  '[object Error]': 'error',
+  '[object Function]': 'function',
+  '[object Number]': 'number',
+  '[object Object]': 'object',
+  '[object RegExp]': 'regexp',
+  '[object String]': 'string'
+};
+
+export function type(obj) {
+  return obj == null ? String(obj) : class2type[toString.call(obj)] || 'object'
+}
+
+// 处理别名 props 
+export function handleColumnNames(dataSource) {
+  const _type = type(dataSource);
+  let temp = {};
+  if (_type === 'object') {
+    temp = dataSource;
+  } else if (_type === 'array') {
+    for (let i = 0; i < dataSource.length; i++) {
+      const alp = base26.column(i + 1);
+      temp[alp] = String(dataSource[i]);
+    }
+  } 
+  return temp;
+}

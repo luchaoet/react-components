@@ -74,6 +74,7 @@ export default class ExcelCom extends React.Component {
               this.excelRef = c;
             }}
             dataSource={dataSource}
+            columnNames={['哈哈哈哈哈哈哈哈哈', '嘿嘿', '哟哟哟哟哟哟']}
             cellWidth={100}
             cellHeight={30}
           />

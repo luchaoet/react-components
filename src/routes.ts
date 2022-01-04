@@ -9,6 +9,7 @@ import Switch from '@/pages/Switch'
 import Template from '@/pages/Template'
 import Button from '@/pages/Button'
 import CustomFilters from '@/pages/CustomFilters'
+import Table from '@/pages/Table'
 
 const routerConfig: IRouterConfig[] = [
   {
@@ -40,6 +41,7 @@ const routerConfig: IRouterConfig[] = [
       { path: '/template', component: Template },
       { path: '/button', component: Button },
       { path: '/filter', component: CustomFilters },
+      { path: '/table', component: Table },
     ],
   },
 ];

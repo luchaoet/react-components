@@ -1,0 +1,28 @@
+.table-wrapper {
+    width: 100%;
+    background: #fff;
+    th {
+        background: #f0f2f5;
+        text-align: left;
+        border-right: 1px solid #dcdfe6;
+        border-bottom: 1px solid #dcdfe6;
+        .table-cell-wrapper {
+            padding: 12px 16px;
+        }
+    }
+    td {
+        text-align: left;
+        border-right: 1px solid #dcdfe6;
+        border-bottom: 1px solid #dcdfe6;
+        .table-cell-wrapper {
+            padding: 12px 16px;
+        }
+    }
+    .table-body-wrapper {
+        background: #fff;
+        transition: all .1s linear;
+        tr:hover {
+            background: #f4f6f9;
+        }
+    }
+}

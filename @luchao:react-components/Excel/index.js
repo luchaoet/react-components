@@ -292,24 +292,25 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
     _this.rowHeight = _tools.rowHeight.bind(_assertThisInitialized(_this));
     _this.position = _this.position.bind(_assertThisInitialized(_this));
     _this.handleWheel = _this.handleWheel.bind(_assertThisInitialized(_this));
+    var cellWidth = props.cellWidth || _this.defaultConfig.cellWidth;
+    var cellHeight = props.cellHeight || _this.defaultConfig.cellHeight;
+    var columnNames = (0, _tools.handleColumnNames)(props.columnNames);
     _this.state = {
       // 单元格默认宽度
-      cellWidth: props.cellWidth || _this.defaultConfig.cellWidth,
+      cellWidth: cellWidth,
       // 单元格默认高度
-      cellHeight: props.cellHeight || _this.defaultConfig.cellHeight,
+      cellHeight: cellHeight,
       // 列头高度
       colHeight: _this.defaultConfig.colHeight,
       // 行头宽度
       rowWidth: _this.defaultConfig.rowWidth,
       // 列宽
-      widths: {
-        A: 200
+      widths: {// A: 200,
       },
       // 行高
-      heights: {
-        1: 80,
-        2: 50,
-        5: 40
+      heights: {// 1: 80,
+        // 2: 50,
+        // 5: 40,
       },
       // 单元格输入框样式
       cellInput: {
@@ -327,7 +328,9 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
         start: null,
         end: null
       },
-      dataSource: props.dataSource
+      dataSource: props.dataSource,
+      // 列 别名
+      columnNames: columnNames
     };
     return _this;
   }
@@ -342,7 +345,8 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
           e.preventDefault();
           console.log('右键菜单');
         },
-        copy: function copy() {
+        copy: function copy(e) {
+          e.preventDefault();
           var focusCells = _this2.state.focusCells;
 
           var _handleFocusCells2 = (0, _tools.handleFocusCells)(focusCells.start, focusCells.end),
@@ -350,6 +354,8 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
               end = _handleFocusCells2.end;
 
           console.log(start, end);
+          var str = (0, _tools.arrayToTable)();
+          e.clipboardData.setData('text/html', str);
         },
         paste: function paste(e) {
           if (e.clipboardData || e.originalEvent) {
@@ -357,7 +363,7 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
             var clipboardData = e.clipboardData || window.clipboardData; // 检查是否复制了excel内容
 
             var html = clipboardData.getData('text/html');
-            var result = (0, _tools.tableToArray)(html); // 复制的字符串内容
+            var result = (0, _tools.tableToArray)(html); // 复制的不是表格，是单纯的字符串内容
 
             if (result.length === 0) {
               result = [[{
@@ -398,9 +404,9 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
             col = _startCell$match2[1],
             row = _startCell$match2[2];
 
-        var _col = _tools.base26.index(col) - 1;
+        var _col = _tools.base26.index(col);
 
-        var _row = Number(row) - 1;
+        var _row = Number(row);
 
         var dataSource = _objectSpread({}, this.state.dataSource);
 
@@ -413,7 +419,7 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
 
           rowContent.forEach(function (colCotent, colIndex) {
             if (!dataSource[rowIndex + _row]) dataSource[rowIndex + _row] = [];
-            dataSource[rowIndex + _row][colIndex + _col] = colCotent;
+            dataSource[rowIndex + _row][_tools.base26.column(colIndex + _col)] = colCotent;
           });
         });
         this.onSetDataSourceAndPaintInit(dataSource);
@@ -734,7 +740,8 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
       var _this$state7 = this.state,
           rowWidth = _this$state7.rowWidth,
           colHeight = _this$state7.colHeight,
-          focusCells = _this$state7.focusCells; // 先擦除后绘制
+          focusCells = _this$state7.focusCells,
+          columnNames = _this$state7.columnNames; // 先擦除后绘制
 
       ctx.clearRect(0, 0, w, colHeight - 1);
       var startLeft = x + rowWidth;
@@ -808,12 +815,18 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
           height: colHeight - 0.5
         }); // 文本
 
+        var alp = _tools.base26.column(index); // 列的别名
+
+
+        var columnName = columnNames[alp] || '';
+        var fontSize = columnName ? '14px' : '16px';
+        var text = columnName ? "".concat(alp, " ").concat(columnName) : alp;
         (0, _tools.fillText)({
           context: ctx,
-          font: '16px PingFang SC',
+          font: "".concat(fontSize, " PingFang SC"),
           fillStyle: color,
           textAlign: 'left',
-          text: _tools.base26.column(index),
+          text: text,
           x: startPointX + 5,
           y: colHeight / 2
         });
@@ -935,6 +948,8 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
     key: "handleDoubleClick",
     value: // 双击编辑单元格
     function handleDoubleClick(e) {
+      if (e.target.id !== 'content-canvas') return;
+
       var _this$position = this.position(e),
           width = _this$position.width,
           height = _this$position.height,
@@ -970,6 +985,7 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
 
       // 忽略 鼠标右键触发的点击事件
       if (e.button === 2) return;
+      if (e.target.tagName.toLowerCase() !== 'canvas') return;
       this.mouseDownSign = true;
 
       var _this$position2 = this.position(e),
@@ -1067,27 +1083,7 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
         focusCells[focusCells.start ? 'end' : 'start'] = {
           x: x,
           y: y
-        }; // const { startColIndex, endColIndex, startRowIndex, endRowIndex } =
-        //   this.standard;
-        // let { scrollLeft, scrollTop } = this.state;
-        // if (focusCells.end.x >= endColIndex - 2) {
-        //   // 向左拖拉选中
-        //   const col = base26.column(startColIndex + 1);
-        //   scrollLeft += this.colWidth(col);
-        // } else if (focusCells.end.x <= startColIndex + 2) {
-        //   // 向右拖拉选中
-        //   const col = base26.column(startColIndex);
-        //   const _scrollLeft = scrollLeft - this.colWidth(col);
-        //   scrollLeft = _scrollLeft >= 0 ? _scrollLeft : 0;
-        // }
-        // if (focusCells.end.y > endRowIndex - 4) {
-        //   // 向下拖拉选中
-        //   scrollTop += 100;
-        // } else if (focusCells.end.y <= startRowIndex + 4) {
-        //   // 向上拖拉选中
-        //   const _scrollTop = scrollTop - 100;
-        //   scrollTop = _scrollTop >= 0 ? _scrollTop : 0;
-        // }
+        };
 
         _this7.setState({
           focusCells: focusCells // scrollLeft, 
@@ -1222,9 +1218,6 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
 
       return /*#__PURE__*/_react["default"].createElement("div", {
         className: "excel-wrap-3l4uGQO",
-        onDoubleClick: function onDoubleClick(e) {
-          return _this8.handleDoubleClick(e);
-        },
         onMouseDown: function onMouseDown(e) {
           return _this8.handleMouseDown(e);
         },
@@ -1248,7 +1241,11 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
       }), /*#__PURE__*/_react["default"].createElement("canvas", {
         id: "row-canvas"
       }), /*#__PURE__*/_react["default"].createElement("canvas", {
-        id: "content-canvas"
+        id: "content-canvas",
+        onDoubleClick: function onDoubleClick(e) {
+          return _this8.handleDoubleClick(e);
+        } // 单元格双击编辑
+
       })), /*#__PURE__*/_react["default"].createElement(_Scroll["default"], {
         className: "scroll-y-wrap",
         direction: "hoz"

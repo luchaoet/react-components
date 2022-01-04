@@ -11,6 +11,9 @@ exports.colWidth = colWidth;
 exports.rowHeight = rowHeight;
 exports.handleFocusCells = handleFocusCells;
 exports.tableToArray = tableToArray;
+exports.arrayToTable = arrayToTable;
+exports.type = type;
+exports.handleColumnNames = handleColumnNames;
 exports.isFirefox = exports.base26 = void 0;
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
@@ -229,6 +232,10 @@ function tableToArray(table) {
       };
     });
   });
+}
+
+function arrayToTable(array) {
+  return "\n  <meta charset='utf-8'>\n  <table>\n      <tbody>\n          <tr>\n              <td>\u66F4\u591A\u5F00\u53D1\u5DE5\u5177</td>\n          </tr>\n      </tbody>\n  </table>\n  ";
 } // eslint-disable-next-line no-extend-native
 
 
@@ -254,3 +261,37 @@ Array.prototype.bubbleSort = function () {
 
   return _this;
 };
+
+var class2type = {
+  '[object Array]': 'array',
+  '[object Boolean]': 'boolean',
+  '[object Date]': 'date',
+  '[object Error]': 'error',
+  '[object Function]': 'function',
+  '[object Number]': 'number',
+  '[object Object]': 'object',
+  '[object RegExp]': 'regexp',
+  '[object String]': 'string'
+};
+
+function type(obj) {
+  return obj == null ? String(obj) : class2type[toString.call(obj)] || 'object';
+} // 处理别名 props 
+
+
+function handleColumnNames(dataSource) {
+  var _type = type(dataSource);
+
+  var temp = {};
+
+  if (_type === 'object') {
+    temp = dataSource;
+  } else if (_type === 'array') {
+    for (var i = 0; i < dataSource.length; i++) {
+      var alp = base26.column(i + 1);
+      temp[alp] = String(dataSource[i]);
+    }
+  }
+
+  return temp;
+}

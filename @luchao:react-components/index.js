@@ -69,6 +69,12 @@ Object.defineProperty(exports, "CustomFilters", {
     return _CustomFilters["default"];
   }
 });
+Object.defineProperty(exports, "Table", {
+  enumerable: true,
+  get: function get() {
+    return _Table["default"];
+  }
+});
 
 var _Tree = _interopRequireDefault(require("./Tree"));
 
@@ -91,5 +97,7 @@ var _Template = _interopRequireDefault(require("./Template"));
 var _Button = _interopRequireDefault(require("./Button"));
 
 var _CustomFilters = _interopRequireDefault(require("./CustomFilters"));
+
+var _Table = _interopRequireDefault(require("./Table"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }

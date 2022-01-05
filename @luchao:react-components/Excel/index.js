@@ -1084,11 +1084,43 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
           x: x,
           y: y
         };
+        var _this7$standard = _this7.standard,
+            startColIndex = _this7$standard.startColIndex,
+            endColIndex = _this7$standard.endColIndex,
+            startRowIndex = _this7$standard.startRowIndex,
+            endRowIndex = _this7$standard.endRowIndex;
+        var _this7$state = _this7.state,
+            scrollLeft = _this7$state.scrollLeft,
+            scrollTop = _this7$state.scrollTop;
+
+        if (focusCells.end.x >= endColIndex - 1) {
+          // 向左拖拉选中
+          var col = _tools.base26.column(startColIndex + 1);
+
+          scrollLeft += _this7.colWidth(col);
+        } else if (focusCells.end.x <= startColIndex + 2) {
+          // 向右拖拉选中
+          var _col2 = _tools.base26.column(startColIndex);
+
+          var _scrollLeft = scrollLeft - _this7.colWidth(_col2);
+
+          scrollLeft = _scrollLeft >= 0 ? _scrollLeft : 0;
+        }
+
+        if (focusCells.end.y > endRowIndex - 3) {
+          // 向下拖拉选中
+          scrollTop += 100;
+        } else if (focusCells.end.y <= startRowIndex + 3) {
+          // 向上拖拉选中
+          var _scrollTop = scrollTop - 100;
+
+          scrollTop = _scrollTop >= 0 ? _scrollTop : 0;
+        }
 
         _this7.setState({
-          focusCells: focusCells // scrollLeft, 
-          // scrollTop 
-
+          focusCells: focusCells,
+          scrollLeft: scrollLeft,
+          scrollTop: scrollTop
         }, function () {
           _this7.paintInit();
         });
@@ -1121,10 +1153,12 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
           })
         };
       });
-    }
+    } // 输入框失焦
+
   }, {
     key: "position",
-    value: function position(e) {
+    value: // 当前鼠标位置
+    function position(e) {
       var clientX = e.clientX,
           clientY = e.clientY,
           currentTarget = e.currentTarget;
@@ -1164,9 +1198,9 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
       } else {
         x = startColIndex;
 
-        var _col2 = _tools.base26.column(x);
+        var _col3 = _tools.base26.column(x);
 
-        var row_acc = rowWidth + cellOffsetX + this.colWidth(_col2);
+        var row_acc = rowWidth + cellOffsetX + this.colWidth(_col3);
         cellLeft = row_acc;
 
         while (row_acc <= offsetLeft) {
@@ -1212,12 +1246,9 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
           style = _this$props.style,
           className = _this$props.className;
 
-      var _style = _objectSpread(_objectSpread({}, style), styles);
-
-      var _className = (0, _classnames["default"])('canvas-wrap', className);
+      var _className = (0, _classnames["default"])('excel-wrap-3l4uGQO', className);
 
       return /*#__PURE__*/_react["default"].createElement("div", {
-        className: "excel-wrap-3l4uGQO",
         onMouseDown: function onMouseDown(e) {
           return _this8.handleMouseDown(e);
         },
@@ -1229,13 +1260,15 @@ var Excel = (_dec = (0, _keyboardShortcut["default"])(), _dec(_class = /*#__PURE
         },
         onMouseLeave: function onMouseLeave(e) {
           return _this8.handleMouseLeave(e);
-        }
+        },
+        style: style,
+        className: _className
       }, /*#__PURE__*/_react["default"].createElement("div", {
         className: "excel-canvas-wrap"
       }, /*#__PURE__*/_react["default"].createElement("div", {
         id: "canvas_wrap",
-        style: _style,
-        className: _className
+        className: "canvas-wrap",
+        style: styles
       }, /*#__PURE__*/_react["default"].createElement("canvas", {
         id: "col-canvas"
       }), /*#__PURE__*/_react["default"].createElement("canvas", {

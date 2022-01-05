@@ -775,10 +775,32 @@ export default class Excel extends Component {
       // 记录起始与结束单元格
       focusCells[focusCells.start ? 'end' : 'start'] = { x, y };
 
+      const { startColIndex, endColIndex, startRowIndex, endRowIndex } =
+        this.standard;
+      let { scrollLeft, scrollTop } = this.state;
+      if (focusCells.end.x >= endColIndex - 1) {
+        // 向左拖拉选中
+        const col = base26.column(startColIndex + 1);
+        scrollLeft += this.colWidth(col);
+      } else if (focusCells.end.x <= startColIndex + 2) {
+        // 向右拖拉选中
+        const col = base26.column(startColIndex);
+        const _scrollLeft = scrollLeft - this.colWidth(col);
+        scrollLeft = _scrollLeft >= 0 ? _scrollLeft : 0;
+      }
+      if (focusCells.end.y > endRowIndex - 3) {
+        // 向下拖拉选中
+        scrollTop += 100;
+      } else if (focusCells.end.y <= startRowIndex + 3) {
+        // 向上拖拉选中
+        const _scrollTop = scrollTop - 100;
+        scrollTop = _scrollTop >= 0 ? _scrollTop : 0;
+      }
+
       this.setState({ 
         focusCells, 
-        // scrollLeft, 
-        // scrollTop 
+        scrollLeft, 
+        scrollTop 
       }, () => {
         this.paintInit();
       });
@@ -804,6 +826,7 @@ export default class Excel extends Component {
     }));
   }
 
+  // 输入框失焦
   onCellInputBlur = (e) => {
     const { cellInput, dataSource} = this.state;
     const _dataSource = {...dataSource};
@@ -826,6 +849,7 @@ export default class Excel extends Component {
     }, () => this.paintInit());
   }
 
+  // 当前鼠标位置
   position(e) {
     const { clientX, clientY, currentTarget } = e;
     const offsetLeft =
@@ -899,22 +923,21 @@ export default class Excel extends Component {
   render() {
     const { styles, cellInput } = this.state;
     const { style, className } = this.props;
-    const _style = { ...style, ...styles };
-    const _className = cx('canvas-wrap', className);
-
+    const _className = cx('excel-wrap-3l4uGQO', className);
     return (
       <div
-        className="excel-wrap-3l4uGQO"
         onMouseDown={(e) => this.handleMouseDown(e)}
         onMouseUp={(e) => this.handleMouseUp(e)}
         onMouseMove={(e) => this.handleMouseMove(e)}
         onMouseLeave={(e) => this.handleMouseLeave(e)}
+        style={style}
+        className={_className}
       >
         <div className="excel-canvas-wrap">
           <div
             id="canvas_wrap"
-            style={_style}
-            className={_className}
+            className="canvas-wrap"
+            style={styles}
           >
             <canvas id="col-canvas" />
             <canvas id="row-canvas" />
@@ -928,7 +951,12 @@ export default class Excel extends Component {
         <Scroll className="scroll-x-wrap" direction="ver" />
         {
           cellInput.position && 
-          <input className="excel-focus-input" style={cellInput.style} defaultValue={cellInput.value} onBlur={this.onCellInputBlur} />
+          <input 
+            className="excel-focus-input" 
+            style={cellInput.style} 
+            defaultValue={cellInput.value} 
+            onBlur={this.onCellInputBlur} 
+          />
         }
       </div>
     );

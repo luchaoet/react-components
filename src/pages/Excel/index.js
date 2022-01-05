@@ -77,6 +77,7 @@ export default class ExcelCom extends React.Component {
             columnNames={['哈哈哈哈哈哈哈哈哈', '嘿嘿', '哟哟哟哟哟哟']}
             cellWidth={100}
             cellHeight={30}
+            style={{height: '400px'}}
           />
         </div>
 
